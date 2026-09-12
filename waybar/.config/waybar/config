@@ -18,6 +18,16 @@
 	"group/system",
         "group/tray-box"
     ],
+    
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "O-O",
+            "deactivated": "X-X"
+        },
+        "tooltip-format-activated":"Disable_Sleep",
+        "tooltip-format-deactivated":"Enable_Sleep"
+    },
 
     "custom/openbracket": {
         "format": "[",
@@ -128,6 +138,8 @@
         "modules": [
             "custom/openbracket",
             "clock",
+            "custom/split",
+            "idle_inhibitor",
             "custom/closebracket"
         ]        
     },
