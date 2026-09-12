@@ -1,1 +1,3 @@
 /alacritty/.config/alacritty/alacritty.toml~
+/sway
+/systemd/.config/systemd/user/sway-session.target.wants/

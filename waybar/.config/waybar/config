@@ -5,18 +5,18 @@
 
     "modules-left": [
         "group/utilities",
-        "group/workspaces",
+        "group/workspaces"
     ],
 
     "modules-center": [
-         "group/clock",
+         "group/clock"
     ],
 
     "modules-right": [
         "group/cpuram",
     	"group/ppd",
 	"group/system",
-        "group/tray-box",
+        "group/tray-box"
     ],
 
     "custom/openbracket": {
@@ -104,14 +104,14 @@
         "format": "CPU:{usage}%",
         "tooltip": false,
         "interval": 2,
-        "on-click": "alacritty -e btop",
+        "on-click": "alacritty -e btop"
     },
 
     "memory":{
         "format": "RAM:{}%",
         "tooltip": false,
         "interval": 2,
-        "on-click": "alacritty -e btop",
+        "on-click": "alacritty -e btop"
     },
 
     "group/system": {
@@ -150,7 +150,7 @@
 		"on-discharging": "notify-send -u normal 'Power Switch' Discharging",
 		"on-charging": "notify-send -u normal 'Power Switch' Charging'"
 	},
-        "format": "{capacity}%",
+        "format": "{capacity}%{icon}",
 	"format-icons": {
 	    "default": ["O----", "OO---", "OOO--", "OOOO-", "OOOOO"],
 	    "charging": ["!----", "!!---", "!!!--", "!!!!-", "!!!!!"]
@@ -159,7 +159,7 @@
 
     "tray": {
         "icon-size": 14,
-        "spacing": 10,
+        "spacing": 10
     },
 
     "group/tray-box": {

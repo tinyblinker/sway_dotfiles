@@ -11,10 +11,11 @@ set $menu fuzzel
 
 ### Output configuration
 #
-output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
-output DP-1 mode 1920x1080@60Hz
-output DP-1 position 0 0
-output DP-1 scale 1.75
+output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_2048x1536_Portrait.png fill
+output eDP-1 mode 2560x1600@120Hz
+output eDP-1 position 0 0
+output eDP-1 scale 1.75
+output eDP-1 adaptive_sync on
 
 ### Idle configuration
 #
@@ -25,12 +26,10 @@ exec swayidle -w \
 
 ### Input configuration
 #
-#   input type:touchpad {
-#       dwt enabled
-#       tap enabled
-#       natural_scroll enabled
-#       middle_emulation enabled
-#   }
+input type:touchpad {
+    tap enabled
+    natural_scroll enabled
+}
 #
 input type:keyboard {
     xkb_layout "us"
