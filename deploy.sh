@@ -5,7 +5,7 @@ set -euo pipefail
 STOW_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # 部署到 $HOME 的包
-HOME_PACKAGES=(sway waybar systemd alacritty)
+HOME_PACKAGES=(sway waybar systemd alacritty systemd_user_environment)
 
 # 部署到系统根 / 的包
 SYSTEM_PACKAGES=(greetd)
