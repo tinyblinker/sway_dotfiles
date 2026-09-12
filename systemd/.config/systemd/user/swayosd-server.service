@@ -1,0 +1,10 @@
+[Unit]
+Description=SwayOSD on-sreen display server
+PartOf=sway-session.target
+After=sway-session.target
+[Service]
+Type=simple
+ExecStart=/usr/bin/swayosd-server
+Restart=on-failure
+[Install]
+WantedBy=sway-session.target

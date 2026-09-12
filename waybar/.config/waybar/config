@@ -1,0 +1,173 @@
+{
+    "position": "top",
+    "height": 30,
+    "spacing": 5, 
+
+    "modules-left": [
+        "group/utilities",
+        "group/workspaces",
+    ],
+
+    "modules-center": [
+         "group/clock",
+    ],
+
+    "modules-right": [
+        "group/cpuram",
+    	"group/ppd",
+	"group/system",
+        "group/tray-box",
+    ],
+
+    "custom/openbracket": {
+        "format": "[",
+        "tooltip": false
+    },
+
+    "custom/closebracket": {
+        "format": "]",
+        "tooltip": false
+    },
+
+    "custom/split": {
+      "format": "|",
+      "tooltip": false
+    },
+
+    "group/utilities": {
+        "orientation": "horizontal",
+        "modules":[
+            "custom/openbracket",
+            "custom/archlinux",
+            "custom/closebracket"
+        ]
+    },
+
+    "custom/archlinux": {
+        "format": "\uf303 ",
+        "tooltip": false,
+        "on-click": "fuzzel"
+    },
+
+    "group/workspaces":{
+        "orientation": "horizontal",
+        "modules":[
+            "custom/openbracket",
+            "sway/workspaces",
+            "custom/closebracket"
+        ]
+    },
+
+    "sway/workspaces": {
+        "format": "{name}:{icon}",
+        "on-click": "activate",
+        "format-icons": {
+            "urgent": " ",
+            "focused": " ",
+            "default": " "
+        }
+    },
+
+    "group/ppd": {
+        "orientation":"horizontal",
+        "modules":[
+            "custom/openbracket",
+            "power-profiles-daemon",
+            "custom/closebracket"
+        ]
+    },
+    
+    "power-profiles-daemon": {
+      "format": "{icon}",
+      "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+      "tooltip": true,
+      "format-icons": {
+        "default": "PERF",
+        "performance": "PERF",
+        "balanced": "BAL",
+        "power-saver": "ECO"
+      }
+    },
+
+    "group/cpuram": {
+        "orientation": "horizontal",
+        "modules": [
+            "custom/openbracket",
+            "cpu",
+            "custom/split",
+            "memory",
+            "custom/closebracket"
+        ]
+    },
+
+    "cpu": {
+        "format": "CPU:{usage}%",
+        "tooltip": false,
+        "interval": 2,
+        "on-click": "alacritty -e btop",
+    },
+
+    "memory":{
+        "format": "RAM:{}%",
+        "tooltip": false,
+        "interval": 2,
+        "on-click": "alacritty -e btop",
+    },
+
+    "group/system": {
+        "orientation": "horizontal",
+        "modules": [
+            "custom/openbracket",
+            "battery",
+            "custom/closebracket"
+        ]
+    },
+    
+    "group/clock": {
+        "orientation": "horizontal",
+        "modules": [
+            "custom/openbracket",
+            "clock",
+            "custom/closebracket"
+        ]        
+    },
+
+    "clock": {
+        "format": "{:%H:%M}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+    },
+
+    "battery": {
+	"interval": 60,
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+	"events": {
+		"on-discharging-warning": "notify-send -u normal 'Low Battery'",
+		"on-discharging-critical": "notify-send -u critical 'Very Low Battery'",
+		"on-charging-100": "notify-send -u normal 'Battery Full!'",
+		"on-discharging": "notify-send -u normal 'Power Switch' Discharging",
+		"on-charging": "notify-send -u normal 'Power Switch' Charging'"
+	},
+        "format": "{capacity}%",
+	"format-icons": {
+	    "default": ["O----", "OO---", "OOO--", "OOOO-", "OOOOO"],
+	    "charging": ["!----", "!!---", "!!!--", "!!!!-", "!!!!!"]
+	}
+    },
+
+    "tray": {
+        "icon-size": 14,
+        "spacing": 10,
+    },
+
+    "group/tray-box": {
+        "orientation": "horizontal",
+        "modules": [
+            "custom/openbracket",
+            "tray",
+            "custom/closebracket"
+        ]
+    }
+}

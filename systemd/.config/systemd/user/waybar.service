@@ -1,0 +1,11 @@
+[Unit]
+Description=Highly customizaable Wayland bar for Sway and wlroots based compositors
+PartOf=sway-session.target
+After=sway-session.target
+[Service]
+Type=simple
+ExecStart=/usr/bin/waybar
+ExecReload=/usr/bin/kill -SIGUSR2 $MAINPID
+Restart=on-failure
+[Install]
+WantedBy=sway-session.target
