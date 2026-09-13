@@ -28,7 +28,7 @@
 ** Sway（窗口管理器）
 - 主键为 =Mod4=（Win），使用 =hjkl= 方向键移动焦点
 - 桌面程序：=fuzzel=（启动器）、=waybar=（状态栏）、=swaync=（通知中心）、
-  =swayosd=（屏幕显示）、=flameshot=（截图）、=swaylock=（锁屏）
+  =swayosd=（屏幕显示）、=grim=+=slurp=（截图）、=swaylock=（锁屏）
 - 屏幕闲置 300 秒锁屏，600 秒关闭屏幕输出
 - 通过 =pre-start.sh= / =50-systemd-user.conf= 将 =DISPLAY=、=SWAYSOCK=、
   =WAYLAND_DISPLAY= 等变量导入 systemd-user 环境，并启动 =sway-session.target=
@@ -95,5 +95,5 @@
 | =Mod+Shift+1~0=   | 移动窗口到工作区   |
 | =Mod+Shift+space= | 切换浮动窗口       |
 | =Mod+r=           | 进入调整大小模式   |
-| =Print=           | 截图（flameshot） |
+| =Print=           | 区域截图（grim+slurp，保存至 =~/Pictures=） |
 | =Mod+Shift+n=     | 打开通知中心       |

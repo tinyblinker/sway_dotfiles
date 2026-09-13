@@ -45,7 +45,8 @@ SWAY_DESKTOP=(
     waybar          # status bar
     swaync          # notification daemon
     swayosd         # on-screen display
-    flameshot       # screenshot
+    grim            # screenshot capture
+    slurp           # screenshot region selection
     wl-clipboard    # wayland clipboard
     playerctl       # media control
 )
@@ -160,12 +161,10 @@ REMOVE_OLD_GREETER=(
     ly
 )
 
-# Old tools (replaced by alacritty/flameshot etc.)
+# Old tools (replaced by alacritty/fuzzel etc.)
 REMOVE_OLD_TOOLS=(
     foot
     wmenu
-    grim
-    slurp
 )
 
 # Old editors (replaced by emacs)

@@ -148,7 +148,7 @@ bindsym $mod+r mode "resize"
     bindsym --locked XF86MonBrightnessDown exec swayosd-client --brightness -3 
     bindsym --locked XF86MonBrightnessUp exec swayosd-client --brightness +3
 
-    bindsym Print exec flameshot gui
+    bindsym Print exec grim -g "$(slurp)" "$HOME/Pictures/screenshot_$(date +%Y%m%d_%H%M%S).png"
 
     # swaync
     bindsym $mod+Shift+n exec swaync-client -t
