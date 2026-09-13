@@ -11,7 +11,7 @@ set $menu fuzzel
 
 ### Output configuration
 #
-output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_2048x1536_Portrait.png fill
+output * bg ~/Pictures/my_wallpaper/674.png fill
 output eDP-1 mode 2560x1600@120Hz
 output eDP-1 position 0 0
 output eDP-1 scale 2.0
@@ -153,6 +153,6 @@ bindsym $mod+r mode "resize"
     # swaync
     bindsym $mod+Shift+n exec swaync-client -t
     
-### Bugfix about systemd-user
+### Pre-start Hooks(systemd-user's environment)
 #
-include /home/shyweeds/.config/sway/config.d/50-systemd-user.conf
+exec /home/shyweeds/.config/sway/scripts/pre-start.sh

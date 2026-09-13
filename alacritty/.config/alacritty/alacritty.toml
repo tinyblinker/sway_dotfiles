@@ -4,3 +4,8 @@ normal = { family = "JetBrainsMono Nerd Font Mono", style = "Bold Italic" }
 
 [window]
 opacity = 0.8
+
+[keyboard]
+bindings = [
+    { key = "Space", mods = "Control|Shift", action = "None" },
+]
