@@ -29,7 +29,6 @@ BASE_TOOLS=(
     which
     rsync
     bat
-    calc
 )
 
 # Shell and terminal

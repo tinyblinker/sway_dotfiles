@@ -1,0 +1,99 @@
+#+TITLE: Sway Dotfiles
+#+AUTHOR: shyweeds
+#+DESCRIPTION: 基于 Arch Linux + Sway 的 Wayland 桌面配置
+
+* 简介
+
+本仓库管理我的 Arch Linux 桌面环境配置文件，基于 Sway（Wayland 合成器）构建，使用
+=GNU Stow= 管理符号链接。针对两台设备（HP 笔记本与迷你主机）提供了独立分支配置，
+并通过 =systemd-user= 管理桌面服务的生命周期。
+
+* 目录结构
+
+| 路径                  | 说明                                    |
+|-----------------------+-----------------------------------------|
+| =sway_hp_laptop/=     | HP 笔记本的 Sway 配置（=sway= 软链接指向） |
+| =sway_mini_pc/=       | 迷你主机的 Sway 配置                      |
+| =sway=                | 指向当前使用设备的软链接（默认 HP 笔记本）   |
+| =waybar/=             | 顶部状态栏配置与样式                      |
+| =alacritty/=          | 终端模拟器配置                           |
+| =systemd/=            | systemd-user 服务（waybar/swaync 等）     |
+| =systemd_user_environment/= | flatpak 环境变量配置               |
+| =greetd/=             | 登录管理器（greetd + tuigreet）          |
+| =deploy.sh=           | 配置文件部署脚本                          |
+| =deploy_software.sh=  | 软件安装/卸载与系统初始化脚本              |
+
+* 主要组件
+
+** Sway（窗口管理器）
+- 主键为 =Mod4=（Win），使用 =hjkl= 方向键移动焦点
+- 桌面程序：=fuzzel=（启动器）、=waybar=（状态栏）、=swaync=（通知中心）、
+  =swayosd=（屏幕显示）、=flameshot=（截图）、=swaylock=（锁屏）
+- 屏幕闲置 300 秒锁屏，600 秒关闭屏幕输出
+- 通过 =pre-start.sh= / =50-systemd-user.conf= 将 =DISPLAY=、=SWAYSOCK=、
+  =WAYLAND_DISPLAY= 等变量导入 systemd-user 环境，并启动 =sway-session.target=
+
+** systemd-user 服务
+所有桌面服务以 =PartOf=sway-session.target= 绑定，随 Sway 启动/退出自动管理：
+
+| 服务                  | 程序          |
+|-----------------------+---------------|
+| =waybar.service=      | 状态栏        |
+| =swaync.service=      | 通知中心      |
+| =swayosd-server.service= | 屏幕显示    |
+| =fcitx5.service=      | 中文输入法    |
+
+** Waybar（状态栏）
+- 顶部栏，包含 Arch 图标（点击打开 fuzzel）、工作区、时钟/空闲抑制、CPU/内存、
+  电源配置、电池、系统托盘
+- 点击 CPU/内存模块可在 alacritty 中打开 =btop=
+
+** 输入法
+- =fcitx5= + =fcitx5-chinese-addons=，由 systemd-user 服务启动
+
+* 部署方法
+
+1. 安装软件（Arch Linux）：
+
+   #+begin_src sh
+   ./deploy_software.sh
+   #+end_src
+
+   该脚本会更新系统、安装/卸载软件、启用 =sshd=、=greetd=、=firewalld= 服务，
+   配置 git、生成 SSH 密钥并设置 firewalld 防火墙规则。
+
+2. 切换设备配置（如使用迷你主机）：
+
+   #+begin_src sh
+   ln -sfn sway_mini_pc sway
+   #+end_src
+
+3. 部署配置文件（使用 GNU Stow 创建符号链接）：
+
+   #+begin_src sh
+   ./deploy.sh
+   #+end_src
+
+   该脚本将用户配置（sway、waybar、alacritty、systemd、systemd_user_environment）
+   链接到 =$HOME=，将 =greetd= 链接到系统根目录 =/=（需要 root），并启用 systemd-user
+   服务。
+
+* 使用
+
+- 启动：登录管理器 =greetd= 会通过 =sway-session.sh= 启动 Sway；退出 Sway 后，
+  =sway-session.target= 及其依赖的服务会被 systemd 自动停止。
+- 常用快捷键：
+
+| 快捷键                    | 功能                |
+|---------------------------+---------------------|
+| =Mod+Return=              | 打开终端            |
+| =Mod+d=                   | 打开应用启动器       |
+| =Mod+Shift+q=             | 关闭窗口            |
+| =Mod+Shift+e=             | 退出 Sway            |
+| =Mod+Shift+c=             | 重载配置            |
+| =Mod+1~0=                 | 切换工作区          |
+| =Mod+Shift+1~0=           | 移动窗口到工作区     |
+| =Mod+Shift+space=         | 切换浮动窗口        |
+| =Mod+r=                   | 进入调整大小模式     |
+| =Print=                   | 截图（flameshot）    |
+| =Mod+Shift+n=             | 打开通知中心        |
