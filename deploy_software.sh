@@ -39,6 +39,8 @@ SHELL_TERMINAL=(
 
 # Sway desktop
 SWAY_DESKTOP=(
+    swayidle        # idle management (auto lock / screen off)
+    swaylock        # screen locker
     fuzzel          # app launcher
     waybar          # status bar
     swaync          # notification daemon
@@ -46,6 +48,13 @@ SWAY_DESKTOP=(
     flameshot       # screenshot
     wl-clipboard    # wayland clipboard
     playerctl       # media control
+)
+
+# XDG desktop portals (screen capture / file dialogs for flatpak etc.)
+PORTAL=(
+    xdg-desktop-portal
+    xdg-desktop-portal-gtk
+    xdg-desktop-portal-wlr
 )
 
 # Chinese input method
@@ -68,6 +77,7 @@ DEV_TOOLS=(
     cmake
     make
     man
+    rustup
 )
 
 # Fonts
@@ -113,6 +123,9 @@ section "Install shell and terminal"
 
 section "Install Sway desktop"
 "${PKG[@]}" -S --noconfirm --needed "${SWAY_DESKTOP[@]}"
+
+section "Install XDG desktop portals"
+"${PKG[@]}" -S --noconfirm --needed "${PORTAL[@]}"
 
 section "Install Chinese input method"
 "${PKG[@]}" -S --noconfirm --needed "${INPUT_METHOD[@]}"
@@ -181,7 +194,34 @@ section "Enable system services"
 "${SYSTEMCTL[@]}" enable --now firewalld.service   # firewall
 
 # ------------------------------------------------------------
-# 5. Set up git
+# 5. Set the default shell to fish
+# ------------------------------------------------------------
+
+section "Set default shell to fish"
+if [ "$SHELL" != "/bin/fish" ] && [ "$SHELL" != "/usr/bin/fish" ]; then
+    chsh -s /bin/fish
+else
+    echo "Default shell is already fish"
+fi
+
+# ------------------------------------------------------------
+# 6. Set up flatpak repositories
+# ------------------------------------------------------------
+
+section "Set up flatpak repositories"
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+sudo flatpak remote-modify flathub --url=https://mirrors.ustc.edu.cn/flathub
+
+# ------------------------------------------------------------
+# 7. Set up Rust (rustup)
+# ------------------------------------------------------------
+
+section "Set up Rust"
+rustup toolchain add stable
+rustup component add rust-analyzer
+
+# ------------------------------------------------------------
+# 8. Set up git
 # ------------------------------------------------------------
 
 section "Set up git"
@@ -193,7 +233,7 @@ git config --global user.signingKey ~/.ssh/id_ed25519
 git config --global commit.gpgSign true
 
 # ------------------------------------------------------------
-# 6. Generate an SSH key
+# 9. Generate an SSH key
 # ------------------------------------------------------------
 
 section "Generate SSH key"
@@ -210,7 +250,7 @@ echo "Your SSH public key:"
 cat "$HOME/.ssh/id_ed25519.pub"
 
 # ------------------------------------------------------------
-# 7. Set up the firewall (firewalld)
+# 10. Set up the firewall (firewalld)
 # ------------------------------------------------------------
 
 section "Set up firewall"
