@@ -10,18 +10,18 @@
 
 * 目录结构
 
-| 路径                  | 说明                                    |
-|-----------------------+-----------------------------------------|
-| =sway_hp_laptop/=     | HP 笔记本的 Sway 配置（=sway= 软链接指向） |
-| =sway_mini_pc/=       | 迷你主机的 Sway 配置                      |
-| =sway=                | 指向当前使用设备的软链接（默认 HP 笔记本）   |
-| =waybar/=             | 顶部状态栏配置与样式                      |
-| =alacritty/=          | 终端模拟器配置                           |
-| =systemd/=            | systemd-user 服务（waybar/swaync 等）     |
-| =systemd_user_environment/= | flatpak 环境变量配置               |
-| =greetd/=             | 登录管理器（greetd + tuigreet）          |
-| =deploy.sh=           | 配置文件部署脚本                          |
-| =deploy_software.sh=  | 软件安装/卸载与系统初始化脚本              |
+| 路径                       | 说明                                    |
+|---------------------------+----------------------------------------|
+| =sway_hp_laptop/=           | HP 笔记本的 Sway 配置（=sway= 软链接指向） |
+| =sway_mini_pc/=             | 迷你主机的 Sway 配置                     |
+| =sway=                      | 指向当前使用设备的软链接（默认 HP 笔记本）  |
+| =waybar/=                   | 顶部状态栏配置与样式                      |
+| =alacritty/=                | 终端模拟器配置                           |
+| =systemd/=                  | systemd-user 服务（waybar/swaync 等）   |
+| =systemd_user_environment/= | flatpak 环境变量配置                     |
+| =greetd/=                   | 登录管理器（greetd + tuigreet）          |
+| =deploy.sh=                 | 配置文件部署脚本                         |
+| =deploy_software.sh=        | 软件安装/卸载与系统初始化脚本              |
 
 * 主要组件
 
@@ -36,12 +36,12 @@
 ** systemd-user 服务
 所有桌面服务以 =PartOf=sway-session.target= 绑定，随 Sway 启动/退出自动管理：
 
-| 服务                  | 程序          |
-|-----------------------+---------------|
-| =waybar.service=      | 状态栏        |
-| =swaync.service=      | 通知中心      |
-| =swayosd-server.service= | 屏幕显示    |
-| =fcitx5.service=      | 中文输入法    |
+| 服务                    | 程序       |
+|------------------------+-----------|
+| =waybar.service=         | 状态栏     |
+| =swaync.service=         | 通知中心   |
+| =swayosd-server.service= | 屏幕显示   |
+| =fcitx5.service=         | 中文输入法 |
 
 ** Waybar（状态栏）
 - 顶部栏，包含 Arch 图标（点击打开 fuzzel）、工作区、时钟/空闲抑制、CPU/内存、
@@ -49,7 +49,7 @@
 - 点击 CPU/内存模块可在 alacritty 中打开 =btop=
 
 ** 输入法
-- =fcitx5= + =fcitx5-chinese-addons=，由 systemd-user 服务启动
+- =fcitx5= + =fcitx5-chinese-addons=,由 systemd-user 服务启动
 
 * 部署方法
 
@@ -84,16 +84,16 @@
   =sway-session.target= 及其依赖的服务会被 systemd 自动停止。
 - 常用快捷键：
 
-| 快捷键                    | 功能                |
-|---------------------------+---------------------|
-| =Mod+Return=              | 打开终端            |
-| =Mod+d=                   | 打开应用启动器       |
-| =Mod+Shift+q=             | 关闭窗口            |
-| =Mod+Shift+e=             | 退出 Sway            |
-| =Mod+Shift+c=             | 重载配置            |
-| =Mod+1~0=                 | 切换工作区          |
-| =Mod+Shift+1~0=           | 移动窗口到工作区     |
-| =Mod+Shift+space=         | 切换浮动窗口        |
-| =Mod+r=                   | 进入调整大小模式     |
-| =Print=                   | 截图（flameshot）    |
-| =Mod+Shift+n=             | 打开通知中心        |
+| 快捷键           | 功能              |
+|-----------------+------------------|
+| =Mod+Return=      | 打开终端          |
+| =Mod+d=           | 打开应用启动器     |
+| =Mod+Shift+q=     | 关闭窗口          |
+| =Mod+Shift+e=     | 退出 Sway         |
+| =Mod+Shift+c=     | 重载配置          |
+| =Mod+1~0=         | 切换工作区        |
+| =Mod+Shift+1~0=   | 移动窗口到工作区   |
+| =Mod+Shift+space= | 切换浮动窗口       |
+| =Mod+r=           | 进入调整大小模式   |
+| =Print=           | 截图（flameshot） |
+| =Mod+Shift+n=     | 打开通知中心       |
