@@ -1,0 +1,26 @@
+{
+  "widgets": [
+    "title",
+    "dnd",
+    "volume",
+    "mpris",
+    "notifications"
+  ],
+  "widget-config": {
+    "volume": {
+      "label": "Volume",
+      "show-per-app": true,
+      "show-per-app-icon": true,
+      "show-per-app-label": true,
+      "expand-per-app": false
+    },
+    "mpris": {
+      "blacklist": [
+        "playerctld"
+      ],
+      "autohide": true,
+      "show-album-art": "when-available",
+      "loop-carousel": false
+    }
+  }
+}

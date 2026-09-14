@@ -5,7 +5,7 @@ set -euo pipefail
 STOW_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # packages to deploy to $HOME
-HOME_PACKAGES=(sway waybar systemd alacritty systemd_user_environment)
+HOME_PACKAGES=(sway waybar systemd alacritty systemd_user_environment fuzzel swaync)
 
 # packages to deploy to the system root /
 SYSTEM_PACKAGES=(greetd)

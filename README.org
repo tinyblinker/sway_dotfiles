@@ -17,6 +17,8 @@
 | =sway=                      | 指向当前使用设备的软链接（默认 HP 笔记本）  |
 | =waybar/=                   | 顶部状态栏配置与样式                      |
 | =alacritty/=                | 终端模拟器配置                           |
+| =fuzzel/=                   | 应用启动器配置（JetBrains Mono Nerd / 20pt / Bold） |
+| =swaync/=                   | 通知中心配置（含音量与 MPRIS 播放控件）    |
 | =systemd/=                  | systemd-user 服务（waybar/swaync 等）   |
 | =systemd_user_environment/= | flatpak 环境变量配置                     |
 | =greetd/=                   | 登录管理器（greetd + tuigreet）          |
@@ -74,9 +76,9 @@
    ./deploy.sh
    #+end_src
 
-   该脚本将用户配置（sway、waybar、alacritty、systemd、systemd_user_environment）
-   链接到 =$HOME=，将 =greetd= 链接到系统根目录 =/=（需要 root），并启用 systemd-user
-   服务。
+   该脚本将用户配置（sway、waybar、alacritty、fuzzel、swaync、systemd、
+   systemd_user_environment）链接到 =$HOME=，将 =greetd= 链接到系统根目录 =/=
+   （需要 root），并启用 systemd-user 服务。
 
 * 使用
 
