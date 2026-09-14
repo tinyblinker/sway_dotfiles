@@ -1,6 +1,5 @@
 ### Variables
 #
-set $config_dir /home/shyweeds/.config/sway
 set $mod Mod4
 set $left h
 set $down j
@@ -8,6 +7,10 @@ set $up k
 set $right l
 set $term alacritty
 set $menu fuzzel
+
+### Fonts configuration
+#
+font pango:JetbrainsMono Nerd Font Bold 14
 
 ### Output configuration
 #
