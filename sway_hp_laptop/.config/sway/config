@@ -14,7 +14,7 @@ set $menu fuzzel
 output * bg ~/Pictures/my_wallpaper/674.png fill
 output eDP-1 mode 2560x1600@120Hz
 output eDP-1 position 0 0
-output eDP-1 scale 2.0
+output eDP-1 scale 1.75
 output eDP-1 adaptive_sync on
 
 ### Idle configuration
