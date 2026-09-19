@@ -45,6 +45,7 @@ SWAY_DESKTOP=(
     waybar          # status bar
     swaync          # notification daemon
     swayosd         # on-screen display
+    polkit-gnome    # PolicyKit authentication agent
     grim            # screenshot capture
     slurp           # screenshot region selection
     wl-clipboard    # wayland clipboard
