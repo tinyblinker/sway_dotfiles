@@ -281,5 +281,31 @@ section "Set up firewall"
 "${FIREWALL[@]}" --zone=home --list-all
 "${FIREWALL[@]}" --zone=trusted --list-all
 
+# ------------------------------------------------------------
+# 11. Set up snapper (Btrfs snapshots, excluding /home)
+# ------------------------------------------------------------
+
+section "Set up snapper"
+
+# Install snapper if it is not already present.
+"${PKG[@]}" -S --noconfirm --needed snapper
+
+# Enable periodic timeline snapshots and their cleanup.
+"${SYSTEMCTL[@]}" enable --now snapper-timeline.timer
+"${SYSTEMCTL[@]}" enable --now snapper-cleanup.timer
+
+# Create the root config (snapshots of /) if it does not exist yet.
+# /home is a separate Btrfs subvolume, so it is automatically excluded
+# from snapshots of /.
+if [ ! -f /etc/snapper/configs/root ]; then
+    snapper -c root create-config /
+fi
+
+# Do not snapshot /home: remove its dedicated config (and all its
+# snapshots) if it is present, so /home is excluded from backups.
+if [ -f /etc/snapper/configs/home ]; then
+    snapper -c home delete-config
+fi
+
 echo
 echo "==> Software setup done"
