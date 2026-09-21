@@ -298,13 +298,13 @@ section "Set up snapper"
 # /home is a separate Btrfs subvolume, so it is automatically excluded
 # from snapshots of /.
 if [ ! -f /etc/snapper/configs/root ]; then
-    snapper -c root create-config /
+    sudo snapper -c root create-config /
 fi
 
 # Do not snapshot /home: remove its dedicated config (and all its
 # snapshots) if it is present, so /home is excluded from backups.
 if [ -f /etc/snapper/configs/home ]; then
-    snapper -c home delete-config
+    sudo snapper -c home delete-config
 fi
 
 echo
