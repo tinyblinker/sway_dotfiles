@@ -114,7 +114,7 @@ MISC=(
     libnotify
     stow
     flatpak
-    opencode
+    ripgrep
 )
 
 section "Install basic system tools"
