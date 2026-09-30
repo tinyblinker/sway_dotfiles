@@ -2,3 +2,6 @@
 /sway
 /systemd/.config/systemd/user/sway-session.target.wants/
 /alacritty
+/xray_dockers/VLESS-TCP-XTLS-Vision-REALITY/
+/xray_dockers/xray_on_server/c.log
+/xray_dockers/
