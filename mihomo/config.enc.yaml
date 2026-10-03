@@ -2,12 +2,12 @@
 proxy-providers:
     AI云边-sub:
         type: http
-        url: ENC[AES256_GCM,data:pvYkVClcPNH1gWoMzgBf/1+Bw4h48qmAV/NKHnX782Mvv9fRDf8JIQNbpwmGah+ri2RNr6TOmscQxDDCVO7KzhzQj5oksL0ALhNJF0ts32qFjzo=,iv:4+V3NKhsy5CI0Vrv60ARfRWMQOn5K0CO/6YTyyLkwHc=,tag:l9iibggPGJLXEGkErvfmdA==,type:str]
+        url: ENC[AES256_GCM,data:HhVrzwqrMkfdUi+nZvUkO23T1ZLJ/IiSPluWXMvDkUJljW1/IwoIFdWgsFiuvD/hWE1eVK/nRj+VfZiIbGIUJ1zYcJlVlWquaYIXyf21JGs+OhY=,iv:LRAclwiOHumH/oCLI5tTuJMSJS86QsYKbfY55uFhdwE=,tag:sg8B8fiK/526Z2fE+TzpRw==,type:str]
         path: ./providers/AI云边.yaml
         interval: 86400
         health-check:
             enable: true
-            url: ENC[AES256_GCM,data:71ANLcy0ZB99LkTGlNWEgvV/CgBvkaxzTKvgz+0blAelBwZMaA==,iv:814cSwcnN/Ohy7wIGWj1MHpxDcPeivipr2gG3Uhxd98=,tag:1AfbumnM6TTeQuwaaSofzw==,type:str]
+            url: ENC[AES256_GCM,data:WgUuXacZz4dTgAzGgsYGlfB2i6xasoRzh52g53cPBWXJW5zyQQ==,iv:mWocf1vC8TBVS4JBmWEKS8+LctyOawaChd17Qk7N5rI=,tag:Wyxq8Ioa6fhhclsgYPwGkg==,type:str]
             interval: 1800
             timeout: 5000
         proxy: DIRECT
@@ -22,13 +22,13 @@ rule-providers:
         interval: 86400
         behavior: domain
         format: mrs
-        url: ENC[AES256_GCM,data:/O8x7mkzNZdijsqrXVEywcvinS5AGi1ajpcLREB9gC9RDc75BGNwNFRrMGt5fToYZNCrTGmasGmFxEkFOg/lsOPLFch6ZL5tAdgwOZ/CmKTYGQ==,iv:qrdwTtb5+chlqbIMG6X8fgyuWW09qZ9s7hfWaNIkCd8=,tag:NRni+72cyFPcNn4GK5lN7w==,type:str]
+        url: ENC[AES256_GCM,data:gWpeAs4Oz0JBeMemVJQpCgqFDMKO3n36K/ariu8XGsS48ufgtvRKxFR7HMBbRLLWWA9UEMi8bZZy8JZUyAx3SupbBr+1RnSFwWl4Vj7nfA0AJw==,iv:eCowd552Jhg/nrpuHO7taFS/YBlG0DavQOevy/2V+Cg=,tag:c4N5FYpUXOSmWVjKixdJXA==,type:str]
     geolocation-!cn:
         type: http
         interval: 86400
         behavior: domain
         format: mrs
-        url: ENC[AES256_GCM,data:+8NcWgTLk5vVolM6r0NH9lmY5gHJtPJyMXjckzhZXouLlTFJypFLUGBRtmCRQ0HIPcy1b2vFK0mgdHiiNtAMk68atG5G/eUjKV9rwqkaqOnrZib57PDz0r5mUOXE5I0=,iv:cPVBjpbmE+Q6/bR47wHxpg/5x32eu42NXYWmfx2B/SU=,tag:gNXBUe1zNHXUHarTeCjBJQ==,type:str]
+        url: ENC[AES256_GCM,data:Ow7ia1sh9ImeTRWhgH49sTUnvyDFyu78G74QfhQRzUzUz/YwvpvKjMiwV8tmPhN5Oo5qHZHf6L+HSyiw/9uDW+0x/nOjhNnHm1atVS3T7X5jD52DzPJb/xAgfAZ0J88=,iv:ReNjrT2mfq/RZvpQXdAVRKz1r1TO3o9YQ70A9v7P2bw=,tag:P08o1o/zLpQkQrjvb6O+lg==,type:str]
 # ---- General ----
 mixed-port: 7897
 allow-lan: false
@@ -40,7 +40,7 @@ tcp-concurrent: true
 find-process-mode: strict
 # ---- External controller / dashboard ----
 external-controller: 127.0.0.1:9097
-secret: ENC[AES256_GCM,data:ykK5IXpSAPtXPtWO,iv:ZWP5/+fcDOguf3dXbogqFiiSB6zY9sIYVvSC2OLbXtw=,tag:h8ID1QJrHwNTlQB/R8G3ig==,type:str]
+secret: ENC[AES256_GCM,data:+djmQrH9w1h4T7pr,iv:hTbKDXieaSj23EKJa4KxDqRnCSPQkFWWJDcrvgTfGAI=,tag:jbHKdKxo6qASw/FxHxAhJg==,type:str]
 external-controller-cors:
     allow-private-network: true
     allow-origins:
@@ -190,15 +190,21 @@ dns:
     nameserver:
         - https://dns.alidns.com/dns-query
         - https://doh.pub/dns-query
-    # per-domain policy (sealed by sops)
+    # per-domain policy for destination domains
     nameserver-policy:
         rule-set:cn_domain:
             - https://doh.pub/dns-query
             - https://dns.alidns.com/dns-query
+    # default resolver for proxy-server (node) domains
+    proxy-server-nameserver:
+        - https://doh.pub/dns-query
+        - https://dns.alidns.com/dns-query
+    # node domains are resolved via the provider DoH (sealed by sops)
+    proxy-server-nameserver-policy:
         +.yz168.cc:
-            - ENC[AES256_GCM,data:diQmQ/8CfWnK1AE7LBsgCqZn36PkQiEqrf3Z2c39SUwXHmpdV31Vhbikj4J/H+xZj2TS4i7h7Y1mk4GyQV/0ftaPvAyRKEVNMPxg4NoiuqvSqF6uiaX5/IqNqmUWnvb93j0=,iv:oJgsdOScKs09pEXXed6LQUgDS+i2XbvDw168oK2a3Y4=,tag:3tPi0j0KDCNxTbkwWl1eAw==,type:str]
+            - ENC[AES256_GCM,data:jGXqMhglT71GzFiLfrcgicwKR1UIJiDOnyeepTFtIFitWMhiH5yQXElKW4/yXxg1QwJeSU/p1qDgX2MqNHvcIrmOKTqSYV9wGq+px4amj8iZtRIqZ1KtwWkw0csiMUgTa88=,iv:3joO1w3L79mdlcqc4uckwJiBGMV4s9+wb+5Trer/dQg=,tag:+0jcMw/RmQWF7ks1EOiZ+g==,type:str]
         +.iyong.com:
-            - ENC[AES256_GCM,data:CvrTU0j+wtX05sP3MKICTVo3CTUxd3Es0RIXlm/kwoeq7eQjx+p9/Os+lhnWa2HydGGfpHZSnBYZp4is4ZXBGUSLo31jzsQU0q+a6vtWbpiDF2W9b/T1eHV+Ks/XaZDONIc=,iv:MPlT26Kk84LmdfRp8wbY2cq43P+xXfzZHeilGSvF4IM=,tag:ij822ur2+CDkCSourmd2rw==,type:str]
+            - ENC[AES256_GCM,data:gP3EoKsoAXRknwcaawWf9yXW/6O3Arn/UQ+HsDeitBRS7ib2D/7F3f8YMe9sLpJkcvVoVWwZUY0JoSibXHIjJ8w9PUFEK1xVUzzauxEJU0BecKvANBPj0O98rMWZBvy2DM0=,iv:qzl0WIwE8akz1FnvJ0cIZ4uLUwAUzZB3xsI4J0tDJsw=,tag:vloqdHPCAeXQgDFOIESvzg==,type:str]
 # ---- Proxy groups ----
 proxy-groups:
     - name: AI云边
@@ -221,13 +227,13 @@ proxy-groups:
       type: url-test
       use:
         - AI云边-sub
-      url: ENC[AES256_GCM,data:/bnqdcyDIpNit34qve6wVFhTyT0CYdhUDeh5EJunioSd9pz1Cg==,iv:cy9/rEOiX99jmPs8u1tkA4gkSdjl93KfNEC0LHVyqYU=,tag:5MBlWO21NK5flPnJkq/Sig==,type:str]
+      url: ENC[AES256_GCM,data:dxpqkT1doZ4ti2GupdDtu2kTc/zxmtmkY2xXEm7WeSqfacR7ag==,iv:4n3aDtVGIBaM2zNAjAmkkf/Wfsp6psGyB4PfvdTGGr8=,tag:kQONzfu3p90drKdeh3IxHg==,type:str]
       interval: 1800
     - name: "\U0001F52F故障转移"
       type: fallback
       use:
         - AI云边-sub
-      url: ENC[AES256_GCM,data:OUWk0/E1HXBpHxluLhKuFS8c//xb7/wz4/UMNbnymoTuedMwwA==,iv:qkgpe2YPDR/Kolh7wBf78oxkSHsfEtnKyjIbIv/Tcco=,tag:Q7kgCcJLk0CT3CX0Rw/7cw==,type:str]
+      url: ENC[AES256_GCM,data:a7CYI4kePf/H2h745rhmQ0tySH83DU9EnckYooXbZsMLMC0z9w==,iv:G9xQZKBC66ExGM4jCliYl9yvNrrIurqbSGbRVh9s+JY=,tag:2y9EWo9EqTxwhn/qIO8LYQ==,type:str]
       interval: 1800
     - name: "\U0001F525ChatGPT"
       type: select
@@ -237,7 +243,7 @@ proxy-groups:
       type: url-test
       use:
         - AI云边-sub
-      url: ENC[AES256_GCM,data:FUkt5R7qogMrCEOpCUd+3FjaPuMBRGYK70bhG6uz4ky6ENBl,iv:a4a0uuN4zYi4UY75KIRuNdI5qJ7EPL61/etrDPS2XLs=,tag:hMgz4zlz2dHhOHs7kxa/SQ==,type:str]
+      url: ENC[AES256_GCM,data:R61E4rkE0+7apcWfk0NqN9g9gJBBEs+gch1RYzMjfIO29S7z,iv:kVy0cIEz6Qif+5X6nVQVgtxfyqFG6fX7yDyZ5bkC6jg=,tag:cvGHlDoOac5Eb+Esm33Tgg==,type:str]
       interval: 600
       tolerance: 50
       filter: (?i)港|hk|hongkong
@@ -245,7 +251,7 @@ proxy-groups:
       type: url-test
       use:
         - AI云边-sub
-      url: ENC[AES256_GCM,data:0cux59WChcwlvGdgoh9FNSXFyUyXg0yM84vhvBziJU3d2CmI,iv:DZuOSJQPmmlS1dd0j3H1rNJmyPPqkFp2bB5CMqw2E1k=,tag:0Rckug0rFHDhqWA/s1AV9A==,type:str]
+      url: ENC[AES256_GCM,data:rSgjXnc2FbtLmdHyhxeR4/XRZXTJL4PA3qoUp9th9OCtjqy7,iv:YoB2PiO4X4wWcnoQyl9rHJ5RaqWXLW9awJ6Hc0t6cFA=,tag:O12j/qpUHK7UGiLopdyAhw==,type:str]
       interval: 600
       tolerance: 50
       filter: (?i)日|jp|japan
@@ -253,7 +259,7 @@ proxy-groups:
       type: url-test
       use:
         - AI云边-sub
-      url: ENC[AES256_GCM,data:hnvb3ty5xPE4C9/a7Q7Io8PGl1fheF9HMs+Lu2CrD6SQ2i5d,iv:c1d9q9b44+E7s94LQiFZIeM1WpWMeJ5noAA/6A3S8BE=,tag:5t55/0LcaTRejjOj58LmWg==,type:str]
+      url: ENC[AES256_GCM,data:tHYMGlhGsnM6meFWSmmghJzegDmldr4aVhhR65Vx/9EM/5bd,iv:o5oNcFgbIfAh+zmwuK1GsjIKXflW0J2hLL+nRk0loSw=,tag:2CI0AKVTTcQkS9+vNwpxKg==,type:str]
       interval: 600
       tolerance: 50
       filter: (?i)韩|kr|korea
@@ -261,7 +267,7 @@ proxy-groups:
       type: url-test
       use:
         - AI云边-sub
-      url: ENC[AES256_GCM,data:nVCJOO0AJOsLXlAEklRJ8kaA5G5nhPBqUHftlwge0omJwUT9,iv:f2qg3XyU5JF9DLK63oDWSjPbC/ytkOZLm3/0/84towM=,tag:Vdlx6MP4cvVKGHCmZfZghw==,type:str]
+      url: ENC[AES256_GCM,data:p78c+ezFeGS+fU/vMWyAvvthAgYalb+846DZ6naLvfE7WNnr,iv:t6c8FDO2++5XEbVxTdZF2Z02MaRYkMH7HcWP+7YTc40=,tag:dcEjSTmfrB8vLucc8g9Q6A==,type:str]
       interval: 600
       tolerance: 50
       filter: (?i)新|sg|singapore
@@ -269,7 +275,7 @@ proxy-groups:
       type: url-test
       use:
         - AI云边-sub
-      url: ENC[AES256_GCM,data:11LO1/8AgbvQlBD2dJ3eTKTalRKhn7ThGz/vTa57CfMxl0y2,iv:iSRLmwzydM8EtolOK0akJK2AAs5wHnHIod0Uy6jZlls=,tag:gygUapQyR/7D2z27YfgcYQ==,type:str]
+      url: ENC[AES256_GCM,data:GcB2LYZXEseof87XPh0S+Zs6egsVDMHVFOo9STwru1bHaygA,iv:h4dEHTfcuiyEbAaHofKDDM17IVV4YQ3VncT4en7Yjuc=,tag:YpXIk978gBjo8UhxOGE1jg==,type:str]
       interval: 600
       tolerance: 50
       filter: (?i)美|us|united states
@@ -277,7 +283,7 @@ proxy-groups:
       type: url-test
       use:
         - AI云边-sub
-      url: ENC[AES256_GCM,data:2eVjgJWmBcueK0CY5yNcPEUpiJ6fKRXs3x3YJJ/zmrguy2KG,iv:inZlX29Q3S/6Lhk6FgaUaoe2t2Ryk5BZFsdEKaajkPU=,tag:E+kFjXxekZ/VNGv+D4USmw==,type:str]
+      url: ENC[AES256_GCM,data:P+4ngQGeNpkesz3bwukRTvawVut/w3sB75AvghVR+4YOphzN,iv:CjKVucEmOEIB42ETOs/JbBAfR93tAChdHNuYaJAG+wA=,tag:uMHLiNP1H5crixgBi8TZ9A==,type:str]
       interval: 600
       tolerance: 50
       filter: (?i)德|de|germany
@@ -285,7 +291,7 @@ proxy-groups:
       type: url-test
       use:
         - AI云边-sub
-      url: ENC[AES256_GCM,data:tAfIn40DJwiZIhmZOlcd2mrIEdDseC3Lch0NqeJmBCVo/Cr0,iv:pgKMnXolNGWDo7CVhhAM46jubobsZ7hD3H6+CHHqAME=,tag:l2WpAurZzvrR4i1DrayPPA==,type:str]
+      url: ENC[AES256_GCM,data:rPEmvHHqCJc672Twevv2kybsThcmNjDbnfazfahdi5iJ+S10,iv:VAOfuFKRvA4yYSf7VvE7iaFhoElT3Q1qwLExhU9x8uU=,tag:CfDfNYSFZDqwTDmdFq8Fxw==,type:str]
       interval: 600
       tolerance: 50
       filter: (?i)法|fr|france
@@ -538,14 +544,14 @@ sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSArVy9Md051Q0E4UHh1UDZE
-            OUx3V0RBR0t2MnNOayt5NmcyZ1JPUG5NUlJNClREYWJxYTF4cE1FUTE3ZGVMckgr
-            R1VZK2Fubk10Q3pKVEZIRmtzM08vdUEKLS0tIGRhenI3L3U2amVPSUF1cjZOaUF0
-            ZHJWalpXT2lPMGpEVDZ6MXZxZDFTVEkKFo7zvZKYQdcHXzbfs354S2ttaxIzFoYH
-            sMNhS9fKomlIbUJ0+mPXQ9kURd49E28FB4JCol9KaUAepuMLUf1W4A==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBvdWNrWjRIRU5uTXhpblJv
+            U1ZVandQSXFLdDAvMU1LYkJXNDZZNHRralNrCk5lQzV5VW5VS1FlbWdkaks3aEYw
+            NW43K0lVN2pYWWI5akxHK210N21iQk0KLS0tIDVqaldNNDM0WHpFMDk1UDdlSFRF
+            VFR2Vk5TZHlreXg5YmM4QncrbGs4WHMKkRARG/wDXKoyvg5JgK/5eBlNPL2ykeAp
+            vksYI5Uo1WD898wKsfcxoBZdb4Q7cD1hFPyyMLpWTkjr3ftoc7Hvjg==
             -----END AGE ENCRYPTED FILE-----
           recipient: age1z6fyqmyt2ja2qkz6u2tm00dnwatgnpfkmx4zm4nu3avlc3tx4gfshw40h0
     encrypted_regex: ^(url|secret|\+\.yz168\.cc|\+\.iyong\.com)$
-    lastmodified: "2026-10-03T16:19:23Z"
-    mac: ENC[AES256_GCM,data:mSIFMlONocqwynmgsaq4R206byZTEx+32wz3B2vV149haRIEcbqLZYdvcM5iIdiJxUT/WTjss2vqC0YriUDyxmyES29inkmEve5ADty7GTcTkl0dwo0PqBJxzYazyikdtCMWdu1KC/qI/kmM6iCXWwS0JF1NpjIWfkbQyaKrVfI=,iv:olF0Ny9GNSlF8qZpRgjjqT/lLT2hV3Bnbj+x1MrmpSU=,tag:Ok/wBNrf+RiGNrYKsZmL3w==,type:str]
+    lastmodified: "2026-10-03T16:52:05Z"
+    mac: ENC[AES256_GCM,data:pdAM9/qFusRZVvlQvUldzcfOEEo3K6S7z0VaEAf/s4d9nSJOcGSN2vxvfzWusD5vbLw7CQN8b3zP+ieVA8obJF7WOrKywawPU4vfX0Dg1MVKvVE58VAqlNODbDaSXwqXd75iMn6LRcWihGyRJkOFQe3dpzk5rzTxa2wpYQPJBzE=,iv:yZVjT+jsX/LCLIWKjJ8ZIf4KA0zPoGHRIPZMUbaMITg=,tag:W3Jy8JVjJJZWYZfWPbGdIQ==,type:str]
     version: 3.13.3
