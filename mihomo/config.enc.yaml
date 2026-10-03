@@ -1,0 +1,585 @@
+# ---- Subscription ----
+proxy-providers:
+    AI云边-sub:
+        type: http
+        url: ENC[AES256_GCM,data:LYXbvTfC7trG72qsB032H6KsqrBYN9BwUbht/vPVJBJohxkj6KHgbyJBalb0kor/jVMVbXSbuCtH/KXAlPC8GVUUtYW2GePLDLjGhsM0eImxLKM=,iv:RFr+p3jdC+gA45XIWtxUTD37UIhmmLV5SIT+NPJVZx4=,tag:9zGtOX5s3AG7AMhFMvLT3Q==,type:str]
+        path: ./providers/AI云边.yaml
+        interval: 86400
+        health-check:
+            enable: true
+            url: ENC[AES256_GCM,data:7gEam7KRdHVv9Rk69Z7ucGaNm76bbnvM3AJNaCmqKwS5KBrtVQ==,iv:532BYiz5L1v9EQp9tG5vmPXLZxhVmPjZOxD7AlLzzLU=,tag:oqXyFiio/wQXtSPWBG+wHQ==,type:str]
+            interval: 1800
+            timeout: 5000
+        proxy: DIRECT
+        override:
+            client-fingerprint: random
+            skip-cert-verify: true
+            udp: true
+# ---- Rule providers ----
+rule-providers:
+    cn_domain:
+        type: http
+        interval: 86400
+        behavior: domain
+        format: mrs
+        url: ENC[AES256_GCM,data:L1/t4rCA2INwIRNLj+MAcrdAkvK8+IPX0DDMZbmtZ1GNfkNeAxMK6LY8r49FdpVSN22sk5eYhFhzBrhlXaFIpUD4F2Ndnp3MWtWinRa9e8CLOg==,iv:FnV31G9N92h+klK9ovGcbpCJZeC67LIGfNWp2n/GKHY=,tag:mIv5VSWyvbYlpY5/Ndrknw==,type:str]
+    geolocation-!cn:
+        type: http
+        interval: 86400
+        behavior: domain
+        format: mrs
+        url: ENC[AES256_GCM,data:DuCEOToHt3hg/3O2ltnyq8aHOtsJyUdTZ/S8MErIGI0NmOOpKNrqms18PrV2qCPPT6F3P/ApxfiD4mQHKCDoQFst2E3CN1L2j9FKcNsD3fJPbk0IJ8fE1OVtg10hll8=,iv:nuyBXXjXfUXutiOXdd/8NqxSEHZiffRJZrsqnbe+LyI=,tag:KOrE95YlJE3wjh0JmAdWGA==,type:str]
+# ---- General ----
+mixed-port: 7897
+allow-lan: false
+mode: rule
+log-level: info
+ipv6: true
+unified-delay: true
+tcp-concurrent: true
+find-process-mode: strict
+# ---- External controller / dashboard ----
+external-controller: 127.0.0.1:9097
+secret: set-your-secret
+external-controller-cors:
+    allow-private-network: true
+    allow-origins:
+        - https://yacd.metacubex.one
+        - https://metacubex.github.io
+        - https://board.zash.run.place
+external-ui: ui
+external-ui-url: https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip
+# GeoIP database mirror
+geox-url:
+    mmdb: https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb
+# Profile
+profile:
+    store-selected: true
+    store-fake-ip: true
+# ---- Sniffer ----
+sniffer:
+    enable: true
+    override-destination: true
+    force-dns-mapping: true
+    parse-pure-ip: true
+    sniff:
+        HTTP:
+            ports:
+                - 80
+                - 8080-8880
+            override-destination: true
+        TLS:
+            ports:
+                - 443
+                - 8443
+            override-destination: true
+        QUIC:
+            ports:
+                - 443
+                - 8443
+            override-destination: true
+    skip-domain:
+        - Mijia Cloud
+        - +.push.apple.com
+# ---- TUN ----
+tun:
+    enable: true
+    stack: gvisor
+    auto-route: true
+    strict-route: false
+    auto-detect-interface: true
+    dns-hijack:
+        - any:53
+    mtu: 1500
+    auto-redirect: true
+# ---- DNS ----
+dns:
+    enable: true
+    ipv6: true
+    use-system-hosts: false
+    listen: 127.0.0.1:5335
+    enhanced-mode: fake-ip
+    fake-ip-range: 198.18.0.1/16
+    # real-IP domains (no fake-ip)
+    fake-ip-filter:
+        - Mijia Cloud
+        - +.local
+        - +.market.xiaomi.com
+        - +.push.apple.com
+        - ntp.*.aliyun.com
+        - time.*.aliyun.com
+        - time.*.apple.com
+        - time.*.com
+        - ntp.*.com
+        - '*.lan'
+        - stun.*.*.*
+        - stun.*.*
+        - time.windows.com
+        - time.nist.gov
+        - time.apple.com
+        - time.asia.apple.com
+        - '*.ntp.org.cn'
+        - '*.openwrt.pool.ntp.org'
+        - time1.cloud.tencent.com
+        - time.ustc.edu.cn
+        - pool.ntp.org
+        - ntp.ubuntu.com
+        - ntp.aliyun.com
+        - ntp1.aliyun.com
+        - ntp2.aliyun.com
+        - ntp3.aliyun.com
+        - ntp4.aliyun.com
+        - ntp5.aliyun.com
+        - ntp6.aliyun.com
+        - ntp7.aliyun.com
+        - time1.aliyun.com
+        - time2.aliyun.com
+        - time3.aliyun.com
+        - time4.aliyun.com
+        - time5.aliyun.com
+        - time6.aliyun.com
+        - time7.aliyun.com
+        - '*.time.edu.cn'
+        - time1.apple.com
+        - time2.apple.com
+        - time3.apple.com
+        - time4.apple.com
+        - time5.apple.com
+        - time6.apple.com
+        - time7.apple.com
+        - time1.google.com
+        - time2.google.com
+        - time3.google.com
+        - time4.google.com
+        - music.163.com
+        - '*.music.163.com'
+        - '*.126.net'
+        - musicapi.taihe.com
+        - music.taihe.com
+        - songsearch.kugou.com
+        - trackercdn.kugou.com
+        - '*.kuwo.cn'
+        - api-jooxtt.sanook.com
+        - api.joox.com
+        - joox.com
+        - y.qq.com
+        - '*.y.qq.com'
+        - streamoc.music.tc.qq.com
+        - mobileoc.music.tc.qq.com
+        - isure.stream.qqmusic.qq.com
+        - dl.stream.qqmusic.qq.com
+        - aqqmusic.tc.qq.com
+        - amobile.music.tc.qq.com
+        - '*.xiami.com'
+        - '*.music.migu.cn'
+        - music.migu.cn
+        - '*.msftconnecttest.com'
+        - '*.msftncsi.com'
+        - localhost.ptlogin2.qq.com
+        - '*.*.*.srv.nintendo.net'
+        - '*.*.stun.playstation.net'
+        - xbox.*.*.microsoft.com
+        - '*.ipv6.microsoft.com'
+        - '*.*.xboxlive.com'
+        - speedtest.cros.wr.pvp.net
+    # bootstrap resolvers
+    default-nameserver:
+        - system
+        - 223.5.5.5
+        - 119.29.29.29
+        - 180.76.76.76
+        - 182.254.118.118
+        - 180.184.2.2
+        - 8.8.8.8
+        - 2400:3200::1
+    # main resolvers
+    nameserver:
+        - https://223.5.5.5/dns-query#skip-cert-verify=true
+        - https://doh.pub/dns-query#skip-cert-verify=true
+        - https://dns.alidns.com/dns-query#skip-cert-verify=true
+        - tls://223.5.5.5#skip-cert-verify=true
+        - tls://dot.pub#skip-cert-verify=true
+        - tls://dns.alidns.com#skip-cert-verify=true
+        - https://223.6.6.6/dns-query#skip-cert-verify=true&h3=true
+        - https://cloudflare-dns.com/dns-query#skip-cert-verify=true
+    # per-domain policy (sealed by sops)
+    nameserver-policy:
+        rule-set:cn_domain:
+            - https://doh.pub/dns-query#skip-cert-verify=true
+            - https://dns.alidns.com/dns-query#skip-cert-verify=true
+        +.yz168.cc:
+            - ENC[AES256_GCM,data:diCFzy+L4araQnDy7xuRMX0ewEY1zM07IiPxcodLQHu33rKSp59ioEJLy6AmWUa+e0SaKWRkp0RsfsGE3zUtbyhHGtiOVrdXrJOcdmStPG0VFJxkrh/NpjolOQ8qkrY34OM=,iv:gumvGKRCvr4jefewH/pkYxenFGcF4Pbbo1WjJioRcq4=,tag:Zg8benFtYKWYmhl6TA75UQ==,type:str]
+        +.iyong.com:
+            - ENC[AES256_GCM,data:qDnYkJ2BMWT9eT0eJBy5g2pxgg3/PGS8lpD2kTUECG/zHR2+f2Xceapx300A8U1HyinPKEEcC/mAg44tWfmNU+gV6Obi7XXqyTjJjyBRld17OJb/Mmi+5GyIwW44iklxxRc=,iv:bwzQctjNFOqS0fUCXVeRaUxmlEuis+5i0+GjND9ZRqs=,tag:RBn5EVc9zxCQUcukwu+0pQ==,type:str]
+    # fallback trigger
+    fallback-filter:
+        geoip: true
+        ipcidr:
+            - 240.0.0.0/4
+            - 0.0.0.0/32
+            - 127.0.0.1/32
+        domain:
+            - +.google.com
+            - +.facebook.com
+            - +.twitter.com
+            - +.youtube.com
+            - +.xn--ngstr-lra8j.com
+            - +.google.cn
+            - +.googleapis.cn
+            - +.googleapis.com
+            - +.gvt1.com
+        geoip-code: CN
+    # fallback DoH servers
+    fallback:
+        - https://8.8.8.8/dns-query#skip-cert-verify=true
+        - https://1.1.1.1/dns-query#skip-cert-verify=true
+# ---- Proxy groups ----
+proxy-groups:
+    - name: AI云边
+      type: select
+      use:
+        - AI云边-sub
+      proxies:
+        - DIRECT
+        - ♻️自动选择
+        - "\U0001F52F故障转移"
+        - "\U0001F525ChatGPT"
+        - 香港
+        - 日本
+        - 韩国
+        - 新加坡
+        - 美国
+        - 德国
+        - 法国
+    - name: ♻️自动选择
+      type: url-test
+      use:
+        - AI云边-sub
+      url: ENC[AES256_GCM,data:By4orJGdgAk3zgy9xKqYOfwxuxWvzKPhYzwjcf8mFxhIKwaqJQ==,iv:ZSEzQVAEjqLUsU+cyi06GRSxa7Hd4nO4bwZP68TyOLk=,tag:5I1mmrJ6VfvEXAyeiG2sUQ==,type:str]
+      interval: 1800
+    - name: "\U0001F52F故障转移"
+      type: fallback
+      use:
+        - AI云边-sub
+      url: ENC[AES256_GCM,data:mmiO/Q/WG+fnmcLYg6ujnO/BMHKDAorAY80zmerfMJrcmpYPzQ==,iv:8ZwlWRXJRZdUwUQ/20detbkLAQ2Dor5ZIyMA+dq8Ue0=,tag:NI7Xi3jmfbYDubP97EJfQg==,type:str]
+      interval: 1800
+    - name: "\U0001F525ChatGPT"
+      type: select
+      use:
+        - AI云边-sub
+    - name: 香港
+      type: url-test
+      use:
+        - AI云边-sub
+      url: ENC[AES256_GCM,data:70TBYfP3YzS82LKKrOdRoGV4gaKjTeC2qXGqYXzy0LwFjeyh,iv:61nP5AIGWhrihhzo31+8xlIQtgQQBcTkxOT1tFzs7Hg=,tag:M9rSDeHGKsjQX0idpcdO5w==,type:str]
+      interval: 600
+      tolerance: 50
+      filter: (?i)港|hk|hongkong
+    - name: 日本
+      type: url-test
+      use:
+        - AI云边-sub
+      url: ENC[AES256_GCM,data:ME+bN3U86mhb+NiYkB6dRxkvsLXl4BfqefOs6t84P9AZV9l5,iv:ZbYyDs1WGINI1RfUZHsdUXnOraCdGRK+3U7n0rRoRTc=,tag:ThydAcCgbMB+yXxi+cyrFw==,type:str]
+      interval: 600
+      tolerance: 50
+      filter: (?i)日|jp|japan
+    - name: 韩国
+      type: url-test
+      use:
+        - AI云边-sub
+      url: ENC[AES256_GCM,data:Aty6WmOt+B36xDZV2hcJla5y8Nf5saM9A/8abhgGBaxLVj3A,iv:M4Z+ekrDtdlVdr+4gIHvECFcXIUkWHW+PfQaCTUWE28=,tag:rJl7eTolxeiZm6mTnTfwiQ==,type:str]
+      interval: 600
+      tolerance: 50
+      filter: (?i)韩|kr|korea
+    - name: 新加坡
+      type: url-test
+      use:
+        - AI云边-sub
+      url: ENC[AES256_GCM,data:KdQ9zwdBk0oRdTCFAtNRRUl1Ngi/PS1+ldF5WHEOsVT9WjZd,iv:cOz45Sc+AG59BKBHseL+goO0u4cs2m1jJoPmB3WcRiw=,tag:K+15P4KM5kE0p/ovdWii7w==,type:str]
+      interval: 600
+      tolerance: 50
+      filter: (?i)新|sg|singapore
+    - name: 美国
+      type: url-test
+      use:
+        - AI云边-sub
+      url: ENC[AES256_GCM,data:kGtfebXJg+Mk1luTtn2EnxbS+hozFkooBVCumB8YsdzTt0U9,iv:hy1VslwO1ckLiBlgKS6/gIF2lULae/X791G6XjSm8K8=,tag:mytDcqzEesC2Rt4kGvcgow==,type:str]
+      interval: 600
+      tolerance: 50
+      filter: (?i)美|us|united states
+    - name: 德国
+      type: url-test
+      use:
+        - AI云边-sub
+      url: ENC[AES256_GCM,data:IN29FbIfhPexj8i6RfihPNC7yLIK+AO8Xy0sxPvxYFJUMgvA,iv:JtMnnLpmZuKxf7zvOLt+PR54SR6WsbL+P/1AHkAjgNM=,tag:6Gg89iVxtVijw/BO4S0KXA==,type:str]
+      interval: 600
+      tolerance: 50
+      filter: (?i)德|de|germany
+    - name: 法国
+      type: url-test
+      use:
+        - AI云边-sub
+      url: ENC[AES256_GCM,data:1v3jXFcC6WRBY4iqr7TUSh9FslMo5xwqudZekPKkrvS4Bf3p,iv:QCefC1WOzVHnD6y/EercwZhnmJib0AbKilG7C+s6Xbw=,tag:8ky63nfj+2W9AhQlzTNfUw==,type:str]
+      interval: 600
+      tolerance: 50
+      filter: (?i)法|fr|france
+# ---- Rules ----
+rules:
+    - DOMAIN,9r0igg.claudeborder.org:8443,DIRECT
+    - PROCESS-NAME,v2ray,DIRECT
+    - PROCESS-NAME,xray,DIRECT
+    - PROCESS-NAME,naive,DIRECT
+    - PROCESS-NAME,trojan,DIRECT
+    - PROCESS-NAME,trojan-go,DIRECT
+    - PROCESS-NAME,ss-local,DIRECT
+    - PROCESS-NAME,privoxy,DIRECT
+    - PROCESS-NAME,leaf,DIRECT
+    - PROCESS-NAME,v2ray.exe,DIRECT
+    - PROCESS-NAME,xray.exe,DIRECT
+    - PROCESS-NAME,naive.exe,DIRECT
+    - PROCESS-NAME,trojan.exe,DIRECT
+    - PROCESS-NAME,trojan-go.exe,DIRECT
+    - PROCESS-NAME,ss-local.exe,DIRECT
+    - PROCESS-NAME,privoxy.exe,DIRECT
+    - PROCESS-NAME,leaf.exe,DIRECT
+    - PROCESS-NAME,Surge,DIRECT
+    - PROCESS-NAME,Surge 2,DIRECT
+    - PROCESS-NAME,Surge 3,DIRECT
+    - PROCESS-NAME,Surge 4,DIRECT
+    - PROCESS-NAME,Surge%202,DIRECT
+    - PROCESS-NAME,Surge%203,DIRECT
+    - PROCESS-NAME,Surge%204,DIRECT
+    - PROCESS-NAME,Thunder,DIRECT
+    - PROCESS-NAME,DownloadService,DIRECT
+    - PROCESS-NAME,qBittorrent,DIRECT
+    - PROCESS-NAME,Transmission,DIRECT
+    - PROCESS-NAME,fdm,DIRECT
+    - PROCESS-NAME,aria2c,DIRECT
+    - PROCESS-NAME,Folx,DIRECT
+    - PROCESS-NAME,NetTransport,DIRECT
+    - PROCESS-NAME,uTorrent,DIRECT
+    - PROCESS-NAME,WebTorrent,DIRECT
+    - PROCESS-NAME,aria2c.exe,DIRECT
+    - PROCESS-NAME,BitComet.exe,DIRECT
+    - PROCESS-NAME,fdm.exe,DIRECT
+    - PROCESS-NAME,NetTransport.exe,DIRECT
+    - PROCESS-NAME,qbittorrent.exe,DIRECT
+    - PROCESS-NAME,Thunder.exe,DIRECT
+    - PROCESS-NAME,ThunderVIP.exe,DIRECT
+    - PROCESS-NAME,transmission-daemon.exe,DIRECT
+    - PROCESS-NAME,transmission-qt.exe,DIRECT
+    - PROCESS-NAME,uTorrent.exe,DIRECT
+    - PROCESS-NAME,WebTorrent.exe,DIRECT
+    - PROCESS-NAME,aDrive.exe,DIRECT
+    - PROCESS-NAME,EpicWebHelper.exe,DIRECT
+    - DOMAIN-SUFFIX,services.googleapis.cn,AI云边
+    - DOMAIN-SUFFIX,xn--ngstr-lra8j.com,AI云边
+    - DOMAIN,safebrowsing.urlsec.qq.com,DIRECT
+    - DOMAIN,safebrowsing.googleapis.com,DIRECT
+    - DOMAIN,developer.apple.com,AI云边
+    - DOMAIN-SUFFIX,digicert.com,AI云边
+    - DOMAIN,ocsp.apple.com,AI云边
+    - DOMAIN,ocsp.comodoca.com,AI云边
+    - DOMAIN,ocsp.usertrust.com,AI云边
+    - DOMAIN,ocsp.sectigo.com,AI云边
+    - DOMAIN,ocsp.verisign.net,AI云边
+    - DOMAIN-SUFFIX,apple-dns.net,AI云边
+    - DOMAIN,testflight.apple.com,AI云边
+    - DOMAIN,sandbox.itunes.apple.com,AI云边
+    - DOMAIN,itunes.apple.com,AI云边
+    - DOMAIN-SUFFIX,apps.apple.com,AI云边
+    - DOMAIN-SUFFIX,blobstore.apple.com,AI云边
+    - DOMAIN,cvws.icloud-content.com,AI云边
+    - DOMAIN-SUFFIX,mzstatic.com,DIRECT
+    - DOMAIN-SUFFIX,itunes.apple.com,DIRECT
+    - DOMAIN-SUFFIX,icloud.com,DIRECT
+    - DOMAIN-SUFFIX,icloud-content.com,DIRECT
+    - DOMAIN-SUFFIX,me.com,DIRECT
+    - DOMAIN-SUFFIX,aaplimg.com,DIRECT
+    - DOMAIN-SUFFIX,cdn20.com,DIRECT
+    - DOMAIN-SUFFIX,cdn-apple.com,DIRECT
+    - DOMAIN-SUFFIX,akadns.net,DIRECT
+    - DOMAIN-SUFFIX,akamaiedge.net,DIRECT
+    - DOMAIN-SUFFIX,edgekey.net,DIRECT
+    - DOMAIN-SUFFIX,mwcloudcdn.com,DIRECT
+    - DOMAIN-SUFFIX,mwcname.com,DIRECT
+    - DOMAIN-SUFFIX,apple.com,DIRECT
+    - DOMAIN-SUFFIX,apple-cloudkit.com,DIRECT
+    - DOMAIN-SUFFIX,apple-mapkit.com,DIRECT
+    - "DOMAIN,chat.openai.com.cdn.cloudflare.net,\U0001F525ChatGPT"
+    - "DOMAIN,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,ai.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,chatgpt.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,openai.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,openaicom.imgix.net,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,sentry.io,\U0001F525ChatGPT"
+    - "DOMAIN-KEYWORD,openai,\U0001F525ChatGPT"
+    - "DOMAIN,api.msn.com,\U0001F525ChatGPT"
+    - "DOMAIN,api.statsig.com,\U0001F525ChatGPT"
+    - "DOMAIN,assets.msn.com,\U0001F525ChatGPT"
+    - "DOMAIN,browser-intake-datadoghq.com,\U0001F525ChatGPT"
+    - "DOMAIN,copilot.microsoft.com,\U0001F525ChatGPT"
+    - "DOMAIN,gateway.bingviz.microsoft.net,\U0001F525ChatGPT"
+    - "DOMAIN,gateway.bingviz.microsoftapp.net,\U0001F525ChatGPT"
+    - "DOMAIN,in.appcenter.ms,\U0001F525ChatGPT"
+    - "DOMAIN,location.microsoft.com,\U0001F525ChatGPT"
+    - "DOMAIN,odc.officeapps.live.com,\U0001F525ChatGPT"
+    - "DOMAIN,openai-api.arkoselabs.com,\U0001F525ChatGPT"
+    - "DOMAIN,openaicomproductionae4b.blob.core.windows.net,\U0001F525ChatGPT"
+    - "DOMAIN,production-openaicom-storage.azureedge.net,\U0001F525ChatGPT"
+    - "DOMAIN,r.bing.com,\U0001F525ChatGPT"
+    - "DOMAIN,self.events.data.microsoft.com,\U0001F525ChatGPT"
+    - "DOMAIN,services.bingapis.com,\U0001F525ChatGPT"
+    - "DOMAIN,static.cloudflareinsights.com,\U0001F525ChatGPT"
+    - "DOMAIN,sydney.bing.com,\U0001F525ChatGPT"
+    - "DOMAIN,www.bing.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,algolia.net,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,api.microsoftapp.net,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,auth0.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,bing-shopping.microsoft-falcon.io,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,challenges.cloudflare.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,chatgpt.livekit.cloud,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,client-api.arkoselabs.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,edgeservices.bing.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,events.statsigapi.net,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,featuregates.org,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,host.livekit.cloud,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,identrust.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,intercom.io,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,intercomcdn.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,launchdarkly.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,oaistatic.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,oaiusercontent.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,observeit.net,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,openaiapi-site.azureedge.net,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,segment.io,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,stripe.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,turn.livekit.cloud,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,sora.com,\U0001F525ChatGPT"
+    - "DOMAIN-KEYWORD,openaicom-api,\U0001F525ChatGPT"
+    - "DOMAIN,cdn.usefathom.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,anthropic.com,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,claude.ai,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,razie.ai,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,razie.aws.intellij.net,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,etbrains.ai,\U0001F525ChatGPT"
+    - "DOMAIN-SUFFIX,meta.com,\U0001F525ChatGPT"
+    - RULE-SET,cn_domain,DIRECT
+    - DOMAIN-KEYWORD,amazon,AI云边
+    - DOMAIN-KEYWORD,google,AI云边
+    - DOMAIN-KEYWORD,gmail,AI云边
+    - DOMAIN-KEYWORD,youtube,AI云边
+    - DOMAIN-KEYWORD,facebook,AI云边
+    - DOMAIN-SUFFIX,fb.me,AI云边
+    - DOMAIN-SUFFIX,fbcdn.net,AI云边
+    - DOMAIN-KEYWORD,twitter,AI云边
+    - DOMAIN-KEYWORD,instagram,AI云边
+    - DOMAIN-KEYWORD,dropbox,AI云边
+    - DOMAIN-SUFFIX,twimg.com,AI云边
+    - DOMAIN-KEYWORD,blogspot,AI云边
+    - DOMAIN-SUFFIX,youtu.be,AI云边
+    - DOMAIN-KEYWORD,whatsapp,AI云边
+    - DOMAIN-SUFFIX,ipleak.net,AI云边
+    - DOMAIN-SUFFIX,browserscan.net,AI云边
+    - DOMAIN-SUFFIX,surfsharkdns.com,AI云边
+    - DOMAIN-SUFFIX,edns.ip-api.com,AI云边
+    - DOMAIN-SUFFIX,dnsleaktest.com,AI云边
+    - DOMAIN-SUFFIX,dnsleak.com,AI云边
+    - DOMAIN-SUFFIX,expressvpn.com,AI云边
+    - DOMAIN-SUFFIX,nordvpn.com,AI云边
+    - DOMAIN-SUFFIX,surfshark.com,AI云边
+    - DOMAIN-SUFFIX,perfect-privacy.com,AI云边
+    - DOMAIN-SUFFIX,browserleaks.com,AI云边
+    - DOMAIN-SUFFIX,browserleaks.org,AI云边
+    - DOMAIN-SUFFIX,browserleaks.net,AI云边
+    - DOMAIN-SUFFIX,vpnunlimited.com,AI云边
+    - DOMAIN-SUFFIX,whoer.net,AI云边
+    - DOMAIN-SUFFIX,whrq.net,AI云边
+    - DOMAIN-KEYWORD,admarvel,REJECT
+    - DOMAIN-KEYWORD,admaster,REJECT
+    - DOMAIN-KEYWORD,adsage,REJECT
+    - DOMAIN-KEYWORD,adsmogo,REJECT
+    - DOMAIN-KEYWORD,adsrvmedia,REJECT
+    - DOMAIN-KEYWORD,adwords,REJECT
+    - DOMAIN-KEYWORD,adservice,REJECT
+    - DOMAIN-SUFFIX,appsflyer.com,REJECT
+    - DOMAIN-KEYWORD,domob,REJECT
+    - DOMAIN-SUFFIX,doubleclick.net,REJECT
+    - DOMAIN-KEYWORD,duomeng,REJECT
+    - DOMAIN-KEYWORD,dwtrack,REJECT
+    - DOMAIN-KEYWORD,guanggao,REJECT
+    - DOMAIN-KEYWORD,lianmeng,REJECT
+    - DOMAIN-SUFFIX,mmstat.com,REJECT
+    - DOMAIN-KEYWORD,mopub,REJECT
+    - DOMAIN-KEYWORD,omgmta,REJECT
+    - DOMAIN-KEYWORD,openx,REJECT
+    - DOMAIN-KEYWORD,partnerad,REJECT
+    - DOMAIN-KEYWORD,pingfore,REJECT
+    - DOMAIN-KEYWORD,supersonicads,REJECT
+    - DOMAIN-KEYWORD,uedas,REJECT
+    - DOMAIN-KEYWORD,umeng,REJECT
+    - DOMAIN-KEYWORD,usage,REJECT
+    - DOMAIN-SUFFIX,vungle.com,REJECT
+    - DOMAIN-KEYWORD,wlmonitor,REJECT
+    - DOMAIN-KEYWORD,zjtoolbar,REJECT
+    - DOMAIN-SUFFIX,ping0.cc,REJECT
+    - RULE-SET,geolocation-!cn,AI云边
+    - IP-CIDR,91.108.4.0/22,AI云边,no-resolve
+    - IP-CIDR,91.108.8.0/21,AI云边,no-resolve
+    - IP-CIDR,91.108.16.0/22,AI云边,no-resolve
+    - IP-CIDR,91.108.56.0/22,AI云边,no-resolve
+    - IP-CIDR,149.154.160.0/20,AI云边,no-resolve
+    - IP-CIDR6,2001:67c:4e8::/48,AI云边,no-resolve
+    - IP-CIDR6,2001:b28:f23d::/48,AI云边,no-resolve
+    - IP-CIDR6,2001:b28:f23f::/48,AI云边,no-resolve
+    - IP-CIDR,120.232.181.162/32,AI云边,no-resolve
+    - IP-CIDR,120.241.147.226/32,AI云边,no-resolve
+    - IP-CIDR,120.253.253.226/32,AI云边,no-resolve
+    - IP-CIDR,120.253.255.162/32,AI云边,no-resolve
+    - IP-CIDR,120.253.255.34/32,AI云边,no-resolve
+    - IP-CIDR,120.253.255.98/32,AI云边,no-resolve
+    - IP-CIDR,180.163.150.162/32,AI云边,no-resolve
+    - IP-CIDR,180.163.150.34/32,AI云边,no-resolve
+    - IP-CIDR,180.163.151.162/32,AI云边,no-resolve
+    - IP-CIDR,180.163.151.34/32,AI云边,no-resolve
+    - IP-CIDR,203.208.39.0/24,AI云边,no-resolve
+    - IP-CIDR,203.208.40.0/24,AI云边,no-resolve
+    - IP-CIDR,203.208.41.0/24,AI云边,no-resolve
+    - IP-CIDR,203.208.43.0/24,AI云边,no-resolve
+    - IP-CIDR,203.208.50.0/24,AI云边,no-resolve
+    - IP-CIDR,220.181.174.162/32,AI云边,no-resolve
+    - IP-CIDR,220.181.174.226/32,AI云边,no-resolve
+    - IP-CIDR,220.181.174.34/32,AI云边,no-resolve
+    - "IP-CIDR,24.199.123.28/32,\U0001F525ChatGPT,no-resolve"
+    - "IP-CIDR,64.23.132.171/32,\U0001F525ChatGPT,no-resolve"
+    - "IP-CIDR,24.199.123.28/32,\U0001F525ChatGPT,no-resolve"
+    - "IP-CIDR,64.23.132.171/32,\U0001F525ChatGPT,no-resolve"
+    - DOMAIN,injections.adguard.org,DIRECT
+    - DOMAIN,local.adguard.org,DIRECT
+    - DOMAIN-SUFFIX,lan,DIRECT
+    - DOMAIN-SUFFIX,local,DIRECT
+    - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+    - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+    - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+    - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+    - IP-CIDR,17.0.0.0/8,DIRECT,no-resolve
+    - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+    - IP-CIDR,224.0.0.0/4,DIRECT,no-resolve
+    - IP-CIDR6,fe80::/10,DIRECT,no-resolve
+    - GEOIP,CN,DIRECT
+    - MATCH,AI云边
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA3Qlg4YUdCMUdVdEtlUFVQ
+            R2xscmlqdlBOUmRyNnpSc0pVYW1KWk5RREI4CnhITTc3T0NuRFNzRHZTUjVlbXJa
+            OEdYYjVLQjNPT1E3d3cxb3JaM01HenMKLS0tIGcvNitxMGdKbzRjcG83Nlp5SVI1
+            b3hjaitNcUJRVGp4TmdLWGVwK3JPV2sKcz/Kk2BQha49Lnld93/+wN5mxX8zY8/n
+            cAEGHTiydZaoYGI4PY0xSWm5Tj81ftR8HRxKs3z2W3gf+1WglogiDQ==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1z6fyqmyt2ja2qkz6u2tm00dnwatgnpfkmx4zm4nu3avlc3tx4gfshw40h0
+    encrypted_regex: ^(url|\+\.yz168\.cc|\+\.iyong\.com)$
+    lastmodified: "2026-10-03T14:47:21Z"
+    mac: ENC[AES256_GCM,data:9PCLMwF1BIKyigqRAhPQR5efC5WJ5qE/mVIAJWIakp2lgH/nDiPVwcw/mC+5ovtroLCqfuZh9UV7D+53Kz7KZ2VE0f3I+omzqkw/ZgEYYnXct3hiPtLTs7ZXEfIGc+K2YYa4+dxs8GUo6vEGpv23geir03mXsKuP61So0jGsuYk=,iv:/xlBOkttoOjCAEUs1ic8P2nYvkyc0TB461GZz8RPaDQ=,tag:4EPu75SG5hm+SHuCume6iw==,type:str]
+    version: 3.13.3

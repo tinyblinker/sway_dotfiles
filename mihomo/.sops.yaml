@@ -1,0 +1,13 @@
+# SOPS configuration for this folder.
+# Encryption backend: age (recipient = public key below).
+# The matching private key lives in ./age-key.txt and is supplied to sops via
+# the SOPS_AGE_KEY_FILE environment variable (see encrypt.sh / decrypt.sh).
+creation_rules:
+  # Encrypt only the sensitive leaf values of the config:
+  #   - every `url` key (the subscription address + non-secret test URLs)
+  #   - the two `nameserver-policy` keys, whose DoH path embeds a credential UUID
+  #     (`+.yz168.cc` / `+.iyong.com`).
+  # Everything else (ports, dns, rules, groups) stays readable.
+  - path_regex: config\.yaml
+    encrypted_regex: '^(url|\+\.yz168\.cc|\+\.iyong\.com)$'
+    age: age1z6fyqmyt2ja2qkz6u2tm00dnwatgnpfkmx4zm4nu3avlc3tx4gfshw40h0
