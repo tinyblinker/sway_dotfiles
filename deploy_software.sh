@@ -115,6 +115,8 @@ MISC=(
     stow
     flatpak
     ripgrep
+    sops            # decrypt/encrypt the mihomo config
+    age             # age backend used by sops
 )
 
 section "Install basic system tools"
@@ -306,6 +308,16 @@ fi
 if [ -f /etc/snapper/configs/home ]; then
     sudo snapper -c home delete-config
 fi
+
+# ------------------------------------------------------------
+# 12. Mihomo (AUR, install manually)
+# ------------------------------------------------------------
+
+section "Mihomo (AUR)"
+echo "mihomo is not in the official repositories. Install it from the AUR"
+echo "manually before running ./deploy.sh (sops and age are installed above):"
+echo
+echo "    paru -S mihomo        # or: yay -S mihomo"
 
 echo
 echo "==> Software setup done"
