@@ -29,8 +29,12 @@ stow --dir="$STOW_DIR" --target="$HOME" --restow "${HOME_PACKAGES[@]}"
 
 # deploy system configs to / (/etc/greetd, /etc/mihomo, requires root)
 if [ "$(id -u)" -eq 0 ]; then
+    rm -rf /etc/greetd
+    rm -rf /etc/mihomo
     stow --dir="$STOW_DIR" --target="/" --restow "${SYSTEM_PACKAGES[@]}"
 else
+    sudo rm -rf /etc/greetd
+    sudo rm -rf /etc/mihomo
     sudo stow --dir="$STOW_DIR" --target="/" --restow "${SYSTEM_PACKAGES[@]}"
 fi
 
