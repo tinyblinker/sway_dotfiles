@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIR}"
 
-PLAIN="config.yaml"
+PLAIN="etc/mihomo/config.yaml"
 ENC="config.enc.yaml"
 KEY_FILE="age-key.txt"
 

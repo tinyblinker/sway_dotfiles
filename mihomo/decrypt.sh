@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIR}"
 
 ENC="config.enc.yaml"
-PLAIN="config.yaml"
+PLAIN="etc/mihomo/config.yaml"
 KEY_FILE="age-key.txt"
 
 # --- locate the age private key -------------------------------------------
@@ -20,7 +20,9 @@ command -v sops >/dev/null 2>&1 || { echo "ERROR: sops is not installed" >&2; ex
 [[ -f "${ENC}" ]] || { echo "ERROR: encrypted config not found: ${ENC}" >&2; exit 1; }
 
 # --- decrypt ---------------------------------------------------------------
+mkdir -p "$(dirname "${PLAIN}")"
 sops --decrypt "${ENC}" > "${PLAIN}"
 
 echo "OK: decrypted ${ENC} -> ${PLAIN}"
-echo "    Run mihomo with:  verge-mihomo -d . -f ${PLAIN}"
+echo "    Deploy with:  ./deploy.sh  (stows to /etc/mihomo)"
+echo "    Then run:     sudo mihomo -d /etc/mihomo"

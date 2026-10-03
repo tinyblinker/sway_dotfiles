@@ -8,6 +8,6 @@ creation_rules:
   #   - the two `nameserver-policy` keys, whose DoH path embeds a credential UUID
   #     (`+.yz168.cc` / `+.iyong.com`).
   # Everything else (ports, dns, rules, groups) stays readable.
-  - path_regex: config\.yaml
+  - path_regex: etc/mihomo/config\.yaml$
     encrypted_regex: '^(url|\+\.yz168\.cc|\+\.iyong\.com)$'
     age: age1z6fyqmyt2ja2qkz6u2tm00dnwatgnpfkmx4zm4nu3avlc3tx4gfshw40h0
