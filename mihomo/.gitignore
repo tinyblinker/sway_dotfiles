@@ -1,15 +1,17 @@
 # Never commit the age private key or the plaintext config (they hold secrets).
 age-key.txt
-config.yaml
+etc/mihomo/config.yaml
 
 # Runtime caches (downloaded at first start; may hold proxy creds).
-providers/   # subscription cache
-ui/          # metacubexd dashboard
-rules/       # rule-provider cache (.mrs files)
-cache/       # mmdb / geodata cache
+etc/mihomo/providers/   # subscription cache
+etc/mihomo/ui/          # metacubexd dashboard
+etc/mihomo/rules/       # rule-provider cache (.mrs files)
+etc/mihomo/cache/       # mmdb / geodata cache
+etc/mihomo/*
 
 # Safe to commit / make public:
 #   config.enc.yaml          (sops-encrypted, secrets sealed)
 #   .sops.yaml               (age public key only)
 #   encrypt.sh / decrypt.sh
+#   etc/mihomo/              (stow package root; only config.yaml is ignored)
 /example.yaml
