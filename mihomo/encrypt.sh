@@ -26,4 +26,4 @@ command -v sops >/dev/null 2>&1 || { echo "ERROR: sops is not installed" >&2; ex
 sops --encrypt "${PLAIN}" > "${ENC}"
 
 echo "OK: encrypted ${PLAIN} -> ${ENC}"
-echo "    Sealed: the subscription 'url' + the two 'nameserver-policy' URLs."
+echo "    Sealed: the subscription 'url'+ ui-controler 'secret' + the two 'nameserver-policy' URLs."
