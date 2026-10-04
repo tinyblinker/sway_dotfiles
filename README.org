@@ -23,7 +23,8 @@ and =alacritty= symlinks, and uses =systemd-user= to manage the desktop services
 | =fuzzel/=                   | App launcher config (JetBrains Mono Nerd / 20pt / Bold)                     |
 | =swaync/=                   | Notification center config (volume + MPRIS controls)                        |
 | =systemd/=                  | systemd-user services (waybar/swaync, etc.)                                 |
-| =systemd_user_environment/= | flatpak environment variables                                               |
+| =systemd_user_environment/= | systemd-user environment variables (flatpak / fcitx5)                       |
+| =fcitx5/=                    | Fcitx5 profile (Rime as the default input method)                           |
 | =greetd/=                   | Login manager (greetd + tuigreet)                                           |
 | =mihomo/=                   | Mihomo (Clash Meta) kernel config, deployed to =/etc/mihomo= after decryption |
 | =xray_dockers/=             | Xray server/client Docker deploy configs (not version-controlled)           |
@@ -58,10 +59,14 @@ All desktop services bind to =PartOf=sway-session.target= and start/stop with Sw
 - Click CPU/memory to open =btop= in alacritty
 
 ** Input method
-- =fcitx5= + =fcitx5-chinese-addons=, started by a systemd-user service
+- =fcitx5= + =fcitx5-rime=, started by a systemd-user service
+- Rime 数据（雾凇拼音 + 小鹤双拼）由 =plum= 部署到 =~/.local/share/fcitx5/rime=，
+  默认方案为 =double_pinyin_flypy=（小鹤双拼）；见 =deploy_software.sh= 第 13 节
 
 ** Mihomo (proxy kernel)
 - Transparent proxy kernel based on =Clash Meta=, configured as a single =config.yaml=, running in =/etc/mihomo=
+- Installed from the official GitHub release (=mihomo-linux-amd64-v3-*.pkg.tar.zst= via =pacman -U=),
+  which also ships =mihomo.service=; =deploy.sh= enables it after deploying the config
 - Sensitive fields (the subscription =url= and the DNS =nameserver-policy= DoH URLs) are encrypted
   with =sops= + =age=; the plaintext =config.yaml= is produced by =mihomo/decrypt.sh= and deployed to =/etc/mihomo=
 - =tun.enable: true= needs root
@@ -76,11 +81,22 @@ All desktop services bind to =PartOf=sway-session.target= and start/stop with Sw
 
    This script updates the system, installs/removes packages, enables =sshd=, =greetd=, =firewalld=,
    configures git, generates an SSH key, and sets up firewalld rules. It also installs =sops= and
-   =age= (used to decrypt the mihomo config). =mihomo= is not in the official repos; install it
-   from the AUR first:
+   =age= (used to decrypt the mihomo config), installs =mihomo= from its official GitHub release
+   (=mihomo-linux-amd64-v3-*.pkg.tar.zst= via =pacman -U=), and deploys =fcitx5-rime= + 雾凇拼音 +
+   小鹤双拼 through =plum=.
+
+   If either download fails (no network, GitHub unreachable, etc.), the script prints a warning
+   with manual instructions and continues without aborting:
 
    #+begin_src sh
+     # mihomo (fallback)
      paru -S mihomo    # or: yay -S mihomo
+
+     # rime (fallback)
+     git clone https://github.com/rime/plum.git ~/.local/share/plum
+     cd ~/.local/share/plum
+     rime_dir=~/.local/share/fcitx5/rime bash rime-install iDvel/rime-ice
+     rime_dir=~/.local/share/fcitx5/rime bash rime-install iDvel/rime-ice:others/recipes/config:schema=double_pinyin_flypy
    #+end_src
 
 2. Switch the device config (e.g. for the mini PC):
@@ -97,9 +113,11 @@ All desktop services bind to =PartOf=sway-session.target= and start/stop with Sw
    #+end_src
 
    This script links the user configs (sway, waybar, alacritty, fuzzel, swaync, systemd,
-   systemd_user_environment) to =$HOME=, links =greetd= and =mihomo= to the system root =/=
+   systemd_user_environment, fcitx5) to =$HOME=, links =greetd= and =mihomo= to the system root =/=
    (needs root), and enables the systemd-user services. The mihomo plaintext =config.yaml= is
-   decrypted by =mihomo/decrypt.sh= before deployment and linked as =/etc/mihomo/config.yaml=.
+   decrypted by =mihomo/decrypt.sh= before deployment and linked as =/etc/mihomo/config.yaml=,
+   then =mihomo.service= is enabled. If =mihomo= is not installed, =deploy.sh= prints a warning
+   and skips the mihomo config/service instead of aborting.
 
 * Usage
 

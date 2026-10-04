@@ -310,14 +310,113 @@ if [ -f /etc/snapper/configs/home ]; then
 fi
 
 # ------------------------------------------------------------
-# 12. Mihomo (AUR, install manually)
+# 12. Mihomo (install from GitHub releases)
 # ------------------------------------------------------------
 
-section "Mihomo (AUR)"
-echo "mihomo is not in the official repositories. Install it from the AUR"
-echo "manually before running ./deploy.sh (sops and age are installed above):"
-echo
-echo "    paru -S mihomo        # or: yay -S mihomo"
+section "Mihomo (from GitHub releases)"
+
+# Download the latest official mihomo Arch package and install it with
+# pacman -U. The package ships /usr/bin/mihomo, /etc/mihomo/config.yaml
+# (placeholder, replaced by ./deploy.sh) and mihomo.service.
+install_mihomo() {
+    local asset ver url tmp
+
+    command -v curl >/dev/null 2>&1 || { echo "curl is required" >&2; return 1; }
+
+    case "$(uname -m)" in
+        x86_64|amd64)   asset="mihomo-linux-amd64-v3-VER.pkg.tar.zst" ;;
+        aarch64|arm64)  asset="mihomo-linux-arm64-VER.pkg.tar.zst" ;;
+        *)              echo "unsupported architecture: $(uname -m)" >&2; return 1 ;;
+    esac
+
+    # resolve the latest tag via the releases/latest redirect (no API rate limit)
+    ver="$(curl -fsS -o /dev/null -w '%{redirect_url}' \
+        "https://github.com/MetaCubeX/mihomo/releases/latest" | sed 's#.*/##')"
+    [[ -n "$ver" && "$ver" == v* ]] || { echo "failed to resolve latest mihomo version" >&2; return 1; }
+
+    asset="${asset/VER/${ver}}"
+    url="https://github.com/MetaCubeX/mihomo/releases/download/${ver}/${asset}"
+
+    tmp="$(mktemp -d)"
+    echo "Downloading ${asset} ..."
+    if ! curl -fL --retry 3 -o "${tmp}/${asset}" "${url}"; then
+        rm -rf "${tmp}"
+        return 1
+    fi
+
+    sudo pacman -U --noconfirm "${tmp}/${asset}"
+    local rc=$?
+    rm -rf "${tmp}"
+    return "${rc}"
+}
+
+if install_mihomo; then
+    echo "mihomo installed from GitHub. Its config is deployed and the service"
+    echo "is enabled by ./deploy.sh."
+else
+    echo "warning: failed to install mihomo from GitHub; skipping mihomo." >&2
+    echo "         Install it manually, then run ./deploy.sh to deploy its config:" >&2
+    echo "             paru -S mihomo          # or: yay -S mihomo" >&2
+    echo "             # or download a release from:" >&2
+    echo "             #   https://github.com/MetaCubeX/mihomo/releases" >&2
+fi
+
+# ------------------------------------------------------------
+# 13. Rime (fcitx5-rime + ice-rime + 小鹤双拼 flypy, via plum)
+# ------------------------------------------------------------
+
+section "Rime (ice-rime + 小鹤双拼 flypy via plum)"
+
+RIME_DIR="$HOME/.local/share/fcitx5/rime"
+PLUM_DIR="$HOME/.local/share/plum"
+
+# Use plum (Rime 配置管理器) to install 雾凇拼音 and patch it for 小鹤双拼.
+install_rime() {
+    command -v git >/dev/null 2>&1 || { echo "git is required" >&2; return 1; }
+
+    # 1. install / update plum
+    if [ ! -d "${PLUM_DIR}/.git" ]; then
+        mkdir -p "$(dirname "${PLUM_DIR}")"
+        git clone --depth 1 https://github.com/rime/plum.git "${PLUM_DIR}" || return 1
+    else
+        (cd "${PLUM_DIR}" && git pull --ff-only) >/dev/null 2>&1 || true
+    fi
+
+    mkdir -p "${RIME_DIR}"
+
+    # 2. install 雾凇拼音 (full)
+    rime_dir="${RIME_DIR}" bash "${PLUM_DIR}/rime-install" iDvel/rime-ice || return 1
+
+    # 3. patch melt_eng / radical_pinyin for 小鹤双拼
+    rime_dir="${RIME_DIR}" bash "${PLUM_DIR}/rime-install" \
+        "iDvel/rime-ice:others/recipes/config:schema=double_pinyin_flypy" || return 1
+
+    # 4. (optional, best-effort) 万象语法模型
+    rime_dir="${RIME_DIR}" bash "${PLUM_DIR}/rime-install" \
+        "iDvel/rime-ice:others/recipes/grammar:schema=double_pinyin_flypy" || true
+
+    # 5. make 小鹤双拼 the default schema (the recipe only appends it)
+    cat > "${RIME_DIR}/default.custom.yaml" <<'EOF'
+patch:
+  schema_list:
+    - schema: double_pinyin_flypy
+    - schema: rime_ice
+EOF
+}
+
+if install_rime; then
+    echo "rime (ice-rime + 小鹤双拼) installed to:"
+    echo "    ${RIME_DIR}"
+    echo "fcitx5 picks it up after a restart; ./deploy.sh links the fcitx5 profile."
+else
+    echo "warning: failed to deploy rime via plum from GitHub; skipping rime." >&2
+    echo "         Install it manually, then run ./deploy.sh to finish fcitx5 setup:" >&2
+    echo "             git clone https://github.com/rime/plum.git ~/.local/share/plum" >&2
+    echo "             cd ~/.local/share/plum" >&2
+    echo "             rime_dir=~/.local/share/fcitx5/rime bash rime-install iDvel/rime-ice" >&2
+    echo "             rime_dir=~/.local/share/fcitx5/rime bash rime-install \\" >&2
+    echo "                 iDvel/rime-ice:others/recipes/config:schema=double_pinyin_flypy" >&2
+fi
 
 echo
 echo "==> Software setup done"
