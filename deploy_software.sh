@@ -159,12 +159,7 @@ install_rime() {
     rime_dir="${RIME_DIR}" bash "${PLUM_DIR}/rime-install" iDvel/rime-ice || return 1
     rime_dir="${RIME_DIR}" bash "${PLUM_DIR}/rime-install" "iDvel/rime-ice:others/recipes/config:schema=double_pinyin_flypy" || return 1
     rime_dir="${RIME_DIR}" bash "${PLUM_DIR}/rime-install" "iDvel/rime-ice:others/recipes/grammar:schema=double_pinyin_flypy" || true
-    cat > "${RIME_DIR}/default.custom.yaml" <<'EOF'
-patch:
-  schema_list:
-    - schema: double_pinyin_flypy
-    - schema: rime_ice
-EOF
+    rime_dir="${RIME_DIR}" bash "${PLUM_DIR}/rime-install" "iDvel/rime-ice:others/recipes/reverse_tone:schema=double_pinyin_flypy" || true
 }
 
 log info "install rime (ice-rime + flypy)"
