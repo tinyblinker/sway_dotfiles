@@ -17,7 +17,7 @@ log() {
 }
 
 install_pkgs() { local label="$1"; shift; log info "install $label"; "${PKG[@]}" -S --noconfirm --needed "$@"; }
-remove_pkgs()  { local label="$1"; shift; log info "remove $label"; "${PKG[@]}" -Rns --noconfirm "$@"; }
+remove_pkgs()  { local label="$1"; shift; log info "remove $label"; "${PKG[@]}" -Rns --noconfirm "$@" || true; }
 
 # --- packages ---
 BASE_TOOLS=(which rsync bat)
