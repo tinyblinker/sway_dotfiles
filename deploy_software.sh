@@ -62,7 +62,7 @@ PORTAL=(
 # Chinese input method
 INPUT_METHOD=(
     fcitx5-im
-    fcitx5-chinese-addons
+    fcitx5-rime
 )
 
 # Editor
