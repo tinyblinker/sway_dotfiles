@@ -24,7 +24,6 @@ and =alacritty= symlinks, and uses =systemd-user= to manage the desktop services
 | =swaync/=                   | Notification center config (volume + MPRIS controls)                        |
 | =systemd/=                  | systemd-user services (waybar/swaync, etc.)                                 |
 | =systemd_user_environment/= | systemd-user environment variables (flatpak / fcitx5)                       |
-| =fcitx5/=                    | Fcitx5 profile (Rime as the default input method)                           |
 | =greetd/=                   | Login manager (greetd + tuigreet)                                           |
 | =mihomo/=                   | Mihomo (Clash Meta) kernel config, deployed to =/etc/mihomo= after decryption |
 | =xray_dockers/=             | Xray server/client Docker deploy configs (not version-controlled)           |
@@ -113,7 +112,7 @@ All desktop services bind to =PartOf=sway-session.target= and start/stop with Sw
    #+end_src
 
    This script links the user configs (sway, waybar, alacritty, fuzzel, swaync, systemd,
-   systemd_user_environment, fcitx5) to =$HOME=, links =greetd= and =mihomo= to the system root =/=
+   systemd_user_environment) to =$HOME=, links =greetd= and =mihomo= to the system root =/=
    (needs root), and enables the systemd-user services. The mihomo plaintext =config.yaml= is
    decrypted by =mihomo/decrypt.sh= before deployment and linked as =/etc/mihomo/config.yaml=,
    then =mihomo.service= is enabled. If =mihomo= is not installed, =deploy.sh= prints a warning

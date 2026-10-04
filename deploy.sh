@@ -1,40 +1,34 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# stow directory (directory of this script)
+# Deploy configs to $HOME and / via GNU Stow, then enable services.
 STOW_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# packages to deploy to $HOME
-HOME_PACKAGES=(sway waybar systemd alacritty systemd_user_environment fuzzel swaync fcitx5)
-
-# packages to deploy to the system root /
+HOME_PACKAGES=(sway waybar systemd alacritty systemd_user_environment fuzzel swaync)
 SYSTEM_PACKAGES=(greetd mihomo)
 
-# check dependencies
-if ! command -v stow >/dev/null 2>&1; then
-    echo "error: GNU stow is not installed" >&2
-    exit 1
-fi
+log() {
+  local lvl="$1"; shift
+  case "$lvl" in
+    info)  printf '\033[36m==> %s\033[0m\n' "$*" ;;
+    ok)    printf '\033[32m[ok] %s\033[0m\n' "$*" ;;
+    warn)  printf '\033[33m[warn] %s\033[0m\n' "$*" >&2 ;;
+    error) printf '\033[31m[error] %s\033[0m\n' "$*" >&2 ;;
+  esac
+}
 
-# ------------------------------------------------------------
-# mihomo: deploy its config only when the kernel is installed.
-# Its config is decrypted into etc/mihomo before stowing.
-# ------------------------------------------------------------
+command -v stow >/dev/null 2>&1 || { log error "GNU stow is not installed"; exit 1; }
+
+# Deploy mihomo only when its kernel is installed.
 if command -v mihomo >/dev/null 2>&1; then
     MIHOMO_OK=1
     "$STOW_DIR/mihomo/decrypt.sh"
 else
     MIHOMO_OK=0
-    echo "warning: mihomo is not installed; skipping its config deployment." >&2
-    echo "         install it first, then re-run ./deploy.sh:" >&2
-    echo "             ./deploy_software.sh            # installs mihomo from GitHub" >&2
-    echo "             # or manually:  paru -S mihomo" >&2
+    log warn "mihomo not installed; skipping its config (run ./deploy_software.sh or paru -S mihomo)"
 fi
 
-# deploy user configs to $HOME
 stow --dir="$STOW_DIR" --target="$HOME" --restow "${HOME_PACKAGES[@]}"
 
-# deploy system configs to / (/etc/greetd, /etc/mihomo, requires root)
 if [ "$(id -u)" -eq 0 ]; then
     rm -rf /etc/greetd
     if [ "$MIHOMO_OK" -eq 1 ]; then
@@ -53,22 +47,19 @@ else
     fi
 fi
 
-# enable the mihomo systemd service (shipped with the GitHub/AUR package)
 if [ "$MIHOMO_OK" -eq 1 ]; then
     if [ -f /usr/lib/systemd/system/mihomo.service ] || [ -f /etc/systemd/system/mihomo.service ]; then
         sudo systemctl daemon-reload
         sudo systemctl enable --now mihomo.service
     else
-        echo "warning: no mihomo.service unit found; start it manually:" >&2
-        echo "         sudo mihomo -d /etc/mihomo" >&2
+        log warn "no mihomo.service found; run manually: sudo mihomo -d /etc/mihomo"
     fi
 fi
 
-# reload and enable the registered systemd user services (the .service files in the package)
 systemctl --user daemon-reload
 for svc in "$STOW_DIR"/systemd/.config/systemd/user/*.service; do
     [ -e "$svc" ] || continue
     systemctl --user enable "$(basename "$svc")"
 done
 
-echo "deploy done"
+log ok "deploy done"
