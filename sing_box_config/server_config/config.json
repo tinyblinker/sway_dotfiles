@@ -1,0 +1,53 @@
+{
+	"log": {
+		"level": "info",
+		"timestamp": true
+	},
+	"inbounds": [
+		{
+			"type": "vless",
+			"tag": "vless-in",
+			"listen": "0.0.0.0",
+			"listen_port": 443,
+			"users": [
+				{
+					"uuid": "ENC[AES256_GCM,data:ILDbeXwxqoeSYRLGvYDWtVauv/WaAOpjRHndXi004i+agJUw,iv:oAkC1McTA3oTLXNTCS7R7dleYZcHu+VwAQxSVx4QEVI=,tag:0SucrsX5PJ4UQ0QF7tF6LA==,type:str]"
+				}
+			],
+			"tls": {
+				"enabled": true,
+				"certificate_path": "/etc/sing-box/cert.pem",
+				"key_path": "/etc/sing-box/key.pem"
+			},
+			"transport": {
+				"type": "ws",
+				"path": "ENC[AES256_GCM,data:Ll/7/MpsUILt+BvdnB8cug8ZxbOnXmxmwwsgOQ==,iv:P67NAjnBUVU3cLMEnzkpg49ZxY06Re4qs7Fhr3NSnwU=,tag:wCiqSVX9deJbv8BmpVPj1w==,type:str]",
+				"headers": {
+					"Host": "proxy.liushuang21341254.xin"
+				}
+			}
+		}
+	],
+	"outbounds": [
+		{
+			"type": "direct",
+			"tag": "direct"
+		},
+		{
+			"type": "block",
+			"tag": "block"
+		}
+	],
+	"sops": {
+		"age": [
+			{
+				"enc": "-----BEGIN AGE ENCRYPTED FILE-----\nYWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBLZWdwY2UyRDlkZlNncjdZ\nTk9kQUZHWkNkeXFPRkZCdDhndTBEczZiRFQ4CmVqZVV3dVZCTFNVWmwrT1VGM0ln\naTNXd0tUdEdVS2JCVjA4TUZzSTV0SHcKLS0tIHRxdEdzM2RFYXBtYVhuODBmQ1Ry\nYzV5WWo5bmtQQU5WOTN5bkNwQUJHOU0KQvliGYD3RsJz8+09ufiBqfx0iOXcc1Ad\n2GRDzMlKTeDP1Yg08T6ORCRu6XMxXN6iTJXp/FyA13kETQgiy+t5DQ==\n-----END AGE ENCRYPTED FILE-----\n",
+				"recipient": "age14zks630pznkvllpv8wjxam4rwn3k7tc8tu5zv0wwwhp85pqxd95q9r94nc"
+			}
+		],
+		"encrypted_regex": "^(uuid|path)$",
+		"lastmodified": "2026-10-05T13:55:15Z",
+		"mac": "ENC[AES256_GCM,data:8SLwxiW7su/dvwOns2Ij/4mDMnoA/YbGayCtvOGieA1zDytjYUN5O3aDfW66y+I0CODMWID0GP3ZompmcjJsysjEry7tgaxj1QKUx2a20Mr3mgxtS6IOPs+/yp8mcNX1pak0MTRh5T7JVoIB3iUHTiDHAMRMpoSqUjHc3WAQZp4=,iv:KzxKSAv6NkLxo+btMbzoUqBEAWN4pplFqFZ7vscJoyU=,tag:nUdni9SyUsGfeQhuI0JR+Q==,type:str]",
+		"version": "3.13.3"
+	}
+}

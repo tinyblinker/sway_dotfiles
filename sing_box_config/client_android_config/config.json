@@ -1,0 +1,123 @@
+{
+	"log": {
+		"level": "info",
+		"timestamp": true
+	},
+	"dns": {
+		"servers": [
+			{
+				"type": "udp",
+				"tag": "local",
+				"server": "223.5.5.5"
+			},
+			{
+				"type": "https",
+				"tag": "remote",
+				"server": "1.1.1.1",
+				"detour": "proxy"
+			}
+		],
+		"rules": [
+			{
+				"domain": [
+					"proxy.liushuang21341254.xin"
+				],
+				"action": "route",
+				"server": "local"
+			},
+			{
+				"rule_set": "geosite-cn",
+				"action": "route",
+				"server": "local"
+			}
+		],
+		"final": "remote",
+		"strategy": "ipv4_only"
+	},
+	"outbounds": [
+		{
+			"type": "vless",
+			"tag": "proxy",
+			"server": "proxy.liushuang21341254.xin",
+			"server_port": 443,
+			"uuid": "ENC[AES256_GCM,data:WJb77Teg7zDIxmDgkz8lutt5gT/2pF/5CHhuL+WtP7Ql1apT,iv:oM7Dm1iEiCYOsTVfXJ02uG5hKKjejO/q7kmT7TbYyfk=,tag:pjw89z93ZaDaNKjpHwYtUA==,type:str]",
+			"tls": {
+				"enabled": true,
+				"server_name": "proxy.liushuang21341254.xin"
+			},
+			"transport": {
+				"type": "ws",
+				"path": "ENC[AES256_GCM,data:Z7Q5VODPWD+9sSzjqg7SZH4YxKnWNvHywp6jjw==,iv:xbFSPJJo6DK5+0moXbRfCUPAsARAbdkH5mcFvUoy6W0=,tag:YBjwyODaAF8KyHdtR8ATFw==,type:str]",
+				"headers": {
+					"Host": "proxy.liushuang21341254.xin"
+				}
+			},
+			"domain_resolver": {
+				"server": "local"
+			}
+		},
+		{
+			"type": "direct",
+			"tag": "direct"
+		},
+		{
+			"type": "block",
+			"tag": "block"
+		}
+	],
+	"route": {
+		"default_domain_resolver": {
+			"server": "local"
+		},
+		"rule_set": [
+			{
+				"type": "remote",
+				"tag": "geoip-cn",
+				"format": "binary",
+				"url": "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs"
+			},
+			{
+				"type": "remote",
+				"tag": "geosite-cn",
+				"format": "binary",
+				"url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-cn.srs"
+			}
+		],
+		"rules": [
+			{
+				"action": "sniff"
+			},
+			{
+				"protocol": "dns",
+				"action": "hijack-dns"
+			},
+			{
+				"ip_is_private": true,
+				"outbound": "direct"
+			},
+			{
+				"rule_set": "geoip-cn",
+				"outbound": "direct"
+			},
+			{
+				"rule_set": "geosite-cn",
+				"outbound": "direct"
+			},
+			{
+				"outbound": "proxy"
+			}
+		]
+	},
+	"sops": {
+		"age": [
+			{
+				"enc": "-----BEGIN AGE ENCRYPTED FILE-----\nYWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAxUlFiNU42L21hL2dPSmta\nTmxZRHF2akRqVWxqQzA4NU0rRFlpVDJ3ZEJrCm1qWHFodzZJZTRIVWRMZmdGWFda\nbUl1Qm9RNUhUcEZFWEZ3dkdiZEgrM0EKLS0tIGJPRFl1bFREZHFjR0xBc0tocFdS\ndlNyd1IzWEgya2pPYk1FT0w3a1dYQUUKfkVtZlkOPIotFA68Wte+UDcPjvFepluN\nZ91nTZ5taT2azjEflgPR5ovC+kb8DaUTP38kIOCguV9Kk0aabWXamw==\n-----END AGE ENCRYPTED FILE-----\n",
+				"recipient": "age14zks630pznkvllpv8wjxam4rwn3k7tc8tu5zv0wwwhp85pqxd95q9r94nc"
+			}
+		],
+		"encrypted_regex": "^(uuid|path)$",
+		"lastmodified": "2026-10-05T13:55:15Z",
+		"mac": "ENC[AES256_GCM,data:W2hLYIAyzqCWVqDXvyYvHGu1GPA5Fipurad+oNmVt0lPFRiZI4iRf9HZxVK3w3K7lu7eBq61eb/FBPptuqVZrOr0Ip+ODWjPVJCMpDinS0xRiCR2oFqo2M5zyN65gJm0fyvCqkAu1HmFcn2stjxFHbx0YHIhNG+IekaAJfbEThc=,iv:5MNM2MwDwQSnquSxRjYpfI76YWlHNGKp3yPJKtj9IWA=,tag:Ct/IhSTEqx9FOkL1nZaCpA==,type:str]",
+		"version": "3.13.3"
+	}
+}

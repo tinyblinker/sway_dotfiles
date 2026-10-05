@@ -1,0 +1,10 @@
+# SOPS configuration: encrypt only sensitive values, keep structure visible.
+creation_rules:
+  # Passwords file: encrypt all values.
+  - path_regex: secrets/secrets.yaml
+    age: age14zks630pznkvllpv8wjxam4rwn3k7tc8tu5zv0wwwhp85pqxd95q9r94nc
+
+  # sing-box configs: encrypt only the uuid and ws path values.
+  - path_regex: (client_config|server_config|client_android_config)/config.json
+    age: age14zks630pznkvllpv8wjxam4rwn3k7tc8tu5zv0wwwhp85pqxd95q9r94nc
+    encrypted_regex: '^(uuid|path)$'

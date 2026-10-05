@@ -1,0 +1,253 @@
+#+TITLE: sing-box 科学上网部署记录
+#+AUTHOR: shyweeds
+#+DATE: 2026-10-05
+
+* 概述
+
+在个人 VPS(1*0.**.**.***)与本地主机(*****.***.1.*)之间部署 sing-box,
+实现科学上网.走 Cloudflare CDN 隐藏 VPS 真实 IP,协议为
+=VLESS + WebSocket + TLS=.
+
+全程由标准 bash 脚本管理(注释与内置提示均为简单英文),脚本位于
+=/home/shyweeds/sing_box_config/=.
+
+* 拓扑
+
+#+BEGIN_SRC text
+本地客户端 ****.***.1.* (sing-box client, TUN 全局代理)
+        │  TLS / WebSocket
+        ▼
+Cloudflare CDN 边缘 (proxy.liushuang21341254.xin, 橙色云)
+        │  (回源, 自签证书 Full 模式)
+        ▼
+VPS 服务端 1*0.**.**.*** (sing-box server, 监听 443)
+#+END_SRC
+
+* 目录结构
+
+#+BEGIN_SRC text
+  /home/shyweeds/sing_box_config/
+  ├── manage.sh                 # 统一入口(菜单式)
+  ├── README.org                # 本文档
+  ├── .sops.yaml                # SOPS 配置(含 age 公钥,可提交)
+  ├── .gitignore                # 忽略 age 私钥
+  ├── secrets/                  # 机密(SOPS 加密)
+  │   ├── key.txt               # age 私钥(gitignore,绝不提交)
+  │   └── secrets.yaml          # 密码(SOPS 加密,可提交)
+  ├── tools/                    # 细分脚本
+  │   ├── common.sh             # 所有常量 + 公共函数(SSH/日志/随机 UUID/路径)
+  │   ├── gen_config.sh         # 生成两端 config.json
+  │   ├── install_server.sh     # 安装服务端(GitHub 发布版/自签证书/systemd)
+  │   ├── install_client.sh     # 安装客户端(Arch 官方仓库: sing-box + rule-set 包)
+  │   ├── deploy_server.sh      # 下发服务端配置 + check
+  │   ├── deploy_client.sh      # 下发客户端配置 + check
+  │   ├── start_server.sh / stop_server.sh / restart_server.sh
+  │   ├── start_client.sh / stop_client.sh / restart_client.sh
+  │   ├── status.sh             # 查看两端状态/版本
+  │   ├── logs.sh               # 查看两端日志
+  │   └── uninstall.sh          # 卸载两端
+  ├── client_config/config.json # 客户端配置(Linux,SOPS 加密 uuid/path)
+  ├── client_android_config/config.json # 客户端配置(Android SFA,SOPS 加密 uuid/path)
+  └── server_config/config.json # 服务端配置(SOPS 加密 uuid/path)
+#+END_SRC
+
+* 快速使用
+
+运行依赖(本机 ****.***.1.* 作为控制机):仅需标准 bash + openssh + openssl + curl.
+密码认证用 =SSH_ASKPASS + setsid= (无需 sshpass / paramiko).
+
+常用命令:
+
+#+BEGIN_SRC bash
+  cd /home/shyweeds/sing_box_config
+  ./manage.sh check              # 环境自检
+  ./manage.sh setup              # 一键部署
+  ./manage.sh status             # 查看两端状态
+  ./manage.sh logs client 200    # 查看客户端日志
+  ./manage.sh restart-all
+  ./manage.sh uninstall
+#+END_SRC
+
+细分脚本也可单独运行,例如 =tools/restart_server.sh=.
+
+* 环境与凭据
+
+| 项           | 值                                                     |
+|--------------+--------------------------------------------------------|
+| 客户端        | ****.***.1.*(shyweeds 登录 + sudo,root SSH 被禁止)       |
+| 服务端        | ****.***.1.*(root 登录)                                 |
+| 域名          | proxy.liushuang21341254.xin(根域 liushuang21341254.xin) |
+| 服务端端口    | 443                                                    |
+| 客户端混合代理 | 127.0.0.1:7890                                         |
+
+密码已外置到 =secrets/secrets.yaml= 并用 SOPS 加密(见下一节),不写进日志,不进命令参数.
+
+* 版本控制与机密加密(SOPS + age)
+
+整个目录已纳入 git,敏感信息用 =SOPS + age= 做 **值级加密**:只加密 JSON/YAML 的
+value,键和结构保留明文,便于 review 与 diff.
+
+** 加密范围
+
+| 文件                             | 加密内容                                   |
+|---------------------------------+-------------------------------------------|
+| =secrets/secrets.yaml=            | =CLIENT_PASSWORD= / =SERVER_PASSWORD= 两个密码 |
+| =client_config/config.json= 等三个 | =uuid= 和 =path= (WS path)字段               |
+
+脚本,README,配置结构(inbounds / outbounds / dns / route 等)全部明文提交.
+
+** 密钥
+
+- age 私钥: =secrets/key.txt= (已 =gitignore=, **绝不提交**).
+- age 公钥:写进 =.sops.yaml=(可安全提交,本身即公钥).
+
+** 加解密命令
+
+#+BEGIN_SRC bash
+  export SOPS_AGE_KEY_FILE="$PWD/secrets/key.txt"
+  sops -d secrets/secrets.yaml          # 解密查看
+  sops -e -i secrets/secrets.yaml       # 加密
+  sops -d client_config/config.json     # 解密查看 config
+#+END_SRC
+
+** 工作流
+
+- =gen_config.sh= 生成配置后自动用 =sops -e= 加密 =uuid/path=.
+- =deploy_*.sh= 上传前自动用 =sops -d= 解密到临时文件.
+- =common.sh= 被 source 时自动解密加载密码(=load_secrets=).
+
+克隆到新机器后,把 =secrets/key.txt= 私钥放回原位即可解密.
+
+* 客户端安装方式(Arch 官方仓库)
+
+客户端是 Arch Linux,改用官方仓库安装,不再从 GitHub 下载二进制:
+
+#+BEGIN_SRC bash
+sudo pacman -S --noconfirm sing-box sing-geoip-rule-set sing-geosite-rule-set
+#+END_SRC
+
+| 项          | 路径 / 说明                                                                                  |
+|-------------+---------------------------------------------------------------------------------------------|
+| 二进制       | =/usr/bin/sing-box=(extra/sing-box)                                                         |
+| 规则集       | =/usr/share/sing-box/rule-set/geoip-cn.srs=,=geosite-cn.srs=(sing-geoip/geosite-rule-set 包)  |
+| systemd 服务 | 包自带 =/usr/lib/systemd/system/sing-box.service=,以 =sing-box= 用户 + CAP_NET_ADMIN 运行(非 root) |
+| 工作目录     | =-D /var/lib/sing-box=,配置 =-C /etc/sing-box=                                                   |
+
+因此配置里规则集路径改为 =/usr/share/sing-box/rule-set/=,配置权限改为 644(供 =sing-box= 用户读取).
+
+服务端是 Ubuntu,无官方包,仍用 GitHub 发布版(=install_server.sh=).
+
+* Android 客户端配置
+
+=gen_config.sh= 会额外生成一份 Android 版(sing-box for Android / SFA)配置,
+放在 =client_android_config/config.json=,与 Linux 客户端共用同一个 UUID / WS path.
+
+与 Linux 客户端配置的差异:
+
+| 项                    | Linux 客户端 | Android 客户端             |
+|-----------------------+-------------+---------------------------|
+| 入站                   | =tun= + =mixed= | 无(SFA 用系统 VPN 接管流量) |
+| 规则集                 | #ERROR      | =remote=(URL,SFA 自行下载) |
+| =auto_detect_interface= | 有          | 无(Android 不支持)         |
+#+TBLFM: $2=local=(=/usr/share/sing-box/rule-set/=)
+
+导入方式:在 SFA 中'配置文件'→ 导入 =client_android_config/config.json=
+(或手动复制内容).规则集由 APP 启动时自动下载,若设备在墙内,建议先通过代理连一次
+再重载规则集.
+
+* 配置要点(sing-box 1.14 schema)
+
+- 协议:VLESS + WebSocket + TLS,UUID 认证,随机 WS path.
+- 服务端:监听 443,自签证书(EC P-256,有效期 10 年),Cloudflare 用 *Full* 模式.
+- 客户端:TUN 全局透明代理 + mixed 代理.
+- 分流:私网/中国大陆直连,其余走代理(rule-set geoip-cn / geosite-cn).
+- DNS 劫持:国内域名走 223.5.5.5 直连,国外域名走 1.1.1.1(DoH,经代理)防污染.
+- 代理出站 =domain_resolver: local=,避免"用代理解析代理域名"的死循环.
+
+* 部署过程踩坑记录
+
+** 1. 客户端实际是 192.168.1.4,且 root SSH 被禁止
+
+脚本运行在 192.168.1.3(另一台机,本身跑 Mihomo),通过 SSH 管理客户端 .4
+和服务端.但 root@192.168.1.4 密码登录被拒(应是 PermitRootLogin 禁止),
+改用以 shyweeds 登录 + sudo 提权(=common.sh= 里 =CLIENT_SUDO=1=).
+
+** 2. sing-box 1.14 的 schema 变化
+
+安装到的是 1.14.2,旧版配置多项失效:
+
+- DNS 服务器旧格式(address)在 1.14 已移除,改为 =type/server/detour=.
+- GeoIP / Geosite 在 1.12 已移除,改用 rule-set(.srs 文件).
+- DNS 规则需 =action= 字段(=action: route=).
+- 出站用域名需 =domain_resolver= 或 =route.default_domain_resolver=.
+- 已弃用 =independent_cache=,TUN 的 =sniff= 字段.
+
+** 3. TUN strict_route 路由冲突
+
+=strict_route: true= 报 =add route 0: file exists=,改为 =strict_route: false=.
+
+** 4. firewalld 拦截 TUN 回包(关键坑)
+
+现象:客户端能解析域名(DNS/UDP 正常),但 TCP 全部超时(google/baidu 都 000).
+
+原因:客户端的 firewalld 把 sing-box 的 tun0 接口归入默认 *public* 区,
+public 区只放行 SSH,拒绝其余入站,导致 TUN 回包被拒.
+
+修复:
+
+#+BEGIN_SRC bash
+  firewall-cmd --zone=trusted --add-interface=tun0 --permanent
+  firewall-cmd --reload
+#+END_SRC
+
+已固化到脚本(=common.sh= 的 =setup_firewalld=,在 start/restart 客户端时自动执行).
+
+** 5. TUN 栈从 mixed 改为 system
+
+最初 =stack: mixed= (gvisor 处理 TCP)下 TCP 不通,一度怀疑 gvisor 用户态
+TCP 栈问题,改为 =stack: system= (内核 TCP/IP 栈).后确认真正根因是 firewalld,
+但保留 =system= (更可靠).
+
+** 6. 教训:勿手滑删除 lookup local 规则
+
+排查时误执行 =ip rule del priority 0=,删掉了内核默认的 =lookup local= 规则,
+导致客户端断网(网卡在,但收不到发往本机 IP 的包,SSH/ping 全挂).
+=ip rule= 改动是运行时临时生效,重启客户端即恢复.脚本里无此危险操作.
+
+** 7. 客户端登录 shell 是 fish
+
+客户端 shyweeds 的登录 shell 是 =fish= (不是 bash). =client_exec= 用
+=echo '密码' | sudo -S sh -c '命令'= 提权,单引号包裹要求命令里不能再有单引号,
+否则会破坏包裹导致命令错乱(实测 grep 模式里的单引号就让 fish 报 =Unknown command=).
+因此所有经 =client_exec= 发送的命令都刻意避免单引号.
+
+* 流量测试结果
+
+#+BEGIN_SRC text
+  出口 IP(经代理)  : ****.***.1.*  (= VPS 出口,证明国外流量走代理)
+  google(代理)     : 200  耗时 3.35s
+  github(代理)     : 200  耗时 3.49s
+  cloudflare(代理) : 200  耗时 4.76s
+  baidu(直连)      : 200  耗时 0.23s
+  bilibili(直连)   : 200  耗时 0.17s
+#+END_SRC
+
+国外站点走代理,国内站点直连,分流符合预期.
+
+* 剩余手动步骤
+
+- Cloudflare 面板把 =proxy.liushuang21341254.xin= 的 SSL/TLS 加密模式设为
+  *Full*(源站自签证书;不要选 Full(strict),否则回源 525).
+  —— 实测已设好(回源 404 说明 TLS 握手成功).
+
+* 运维命令速查
+
+#+BEGIN_SRC bash
+  cd /home/shyweeds/sing_box_config
+  ./manage.sh status
+  ./manage.sh logs server
+  ./manage.sh restart-all
+  ./manage.sh gen-config          # 重新随机 UUID/WS path
+  ./manage.sh deploy-server       # 下发服务端
+  ./manage.sh deploy-client       # 下发客户端
+#+END_SRC
