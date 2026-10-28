@@ -40,6 +40,7 @@ usage: ./deploy.sh [command]
 commands:
   config        stow configs and enable services (default)
   software      install packages and set up the system (Arch Linux)
+  after_mihomo  install rime (ice-rime + flypy)
   switch HOST   point sway/alacritty symlinks at HOST (e.g. mini_pc)
   encrypt       encrypt mihomo/etc/mihomo/config.yaml -> mihomo/config.enc.yaml
   decrypt       decrypt mihomo/config.enc.yaml -> mihomo/etc/mihomo/config.yaml
@@ -146,7 +147,7 @@ cmd_software() {
     log info "update system"
     "${SUDO[@]}" pacman -Syu --noconfirm
 
-    pacman_instnall "basic tools"    "${base_tools[@]}"
+    pacman_install "basic tools"    "${base_tools[@]}"
     pacman_install "shell/terminal" "${shell_terminal[@]}"
     pacman_install "sway desktop"   "${sway_desktop[@]}"
     pacman_install "xdg portals"    "${portal[@]}"
@@ -231,13 +232,6 @@ cmd_software() {
         log warn "no mihomo package in $MIHOMO_PKG_DIR (expected exactly one mihomo-*.pkg.tar.zst)"
     fi
 
-    log info "install rime (ice-rime + flypy)"
-    if install_rime; then
-        log ok "rime installed to $HOME/.local/share/fcitx5/rime"
-    else
-        log warn "rime install failed; see README.org for the manual fallback"
-    fi
-
     log ok "software done"
 }
 
@@ -291,6 +285,11 @@ cmd_config() {
 case "${1:-config}" in
     config)   cmd_config ;;
     software) cmd_software ;;
+    after_mihomo)
+        log info "install rime (ice-rime + flypy)"
+        install_rime || die "rime install failed; see README.org for the manual fallback"
+        log ok "rime installed to $HOME/.local/share/fcitx5/rime"
+        ;;
     switch)
         [ $# -ge 2 ] || die "usage: ./deploy.sh switch <host>"
         [ -d "$ROOT/sway_$2" ] || die "unknown host: $2"

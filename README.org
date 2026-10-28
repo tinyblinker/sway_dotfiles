@@ -27,7 +27,7 @@ and =alacritty= symlinks, and uses =systemd-user= to manage the desktop services
 | =greetd/=                   | Login manager (greetd + tuigreet)                                           |
 | =mihomo/=                   | Mihomo (Clash Meta) kernel config, deployed to =/etc/mihomo= after decryption |
 | =xray_dockers/=             | Xray server/client Docker deploy configs (not version-controlled)           |
-| =deploy.sh=                 | Single entry: config / software / switch / encrypt / decrypt                |
+| =deploy.sh=                 | Single entry: config / software / after_mihomo / switch / encrypt / decrypt |
 
 * Main components
 
@@ -59,7 +59,7 @@ All desktop services bind to =PartOf=sway-session.target= and start/stop with Sw
 ** Input method
 - =fcitx5= + =fcitx5-rime=, started by a systemd-user service
 - Rime 数据（雾凇拼音 + 小鹤双拼）由 =plum= 部署到 =~/.local/share/fcitx5/rime=，
-  默认方案为 =double_pinyin_flypy=（小鹤双拼）；见 =./deploy.sh software=
+  默认方案为 =double_pinyin_flypy=（小鹤双拼）；见 =./deploy.sh after_mihomo=
 
 ** Mihomo (proxy kernel)
 - Transparent proxy kernel based on =Clash Meta=, configured as a single =config.yaml=, running in =/etc/mihomo=
@@ -80,17 +80,26 @@ All desktop services bind to =PartOf=sway-session.target= and start/stop with Sw
 
    This command updates the system, installs/removes packages, enables =sshd=, =greetd=, =firewalld=,
    configures git, generates an SSH key, and sets up firewalld rules. It also installs =sops= and
-   =age= (used to decrypt the mihomo config), installs =mihomo= from a pre-downloaded package
-   (=mihomo-*.pkg.tar.zst= in =./pkgs/=, or =$MIHOMO_PKG_DIR=) via =pacman -U=, and deploys
-   =fcitx5-rime= + 雾凇拼音 + 小鹤双拼 through =plum=.
+   =age= (used to decrypt the mihomo config), and installs =mihomo= from a pre-downloaded package
+   (=mihomo-*.pkg.tar.zst= in =./pkgs/=, or =$MIHOMO_PKG_DIR=) via =pacman -U=.
 
-   If the mihomo package is missing or the rime clone fails, the script prints a warning
-   with manual instructions and continues without aborting:
+   If the mihomo package is missing, the script prints a warning and continues without aborting:
 
    #+begin_src sh
      # mihomo (fallback): put the package in ./pkgs/ and rerun the script
      paru -S mihomo    # or: yay -S mihomo
+   #+end_src
 
+2. Install rime (雾凇拼音 + 小鹤双拼):
+
+   #+begin_src sh
+     ./deploy.sh after_mihomo
+   #+end_src
+
+   This clones =plum= and deploys =iDvel/rime-ice= plus the =double_pinyin_flypy= recipes into
+   =~/.local/share/fcitx5/rime=. It exits non-zero if the clone or recipe installation fails.
+
+   #+begin_src sh
      # rime (fallback)
      git clone https://github.com/rime/plum.git ~/.local/share/plum
      cd ~/.local/share/plum
@@ -98,7 +107,7 @@ All desktop services bind to =PartOf=sway-session.target= and start/stop with Sw
      rime_dir=~/.local/share/fcitx5/rime bash rime-install iDvel/rime-ice:others/recipes/config:schema=double_pinyin_flypy
    #+end_src
 
-2. Switch the device config (e.g. for the mini PC):
+3. Switch the device config (e.g. for the mini PC):
 
    #+begin_src sh
      ./deploy.sh switch mini_pc
@@ -106,7 +115,7 @@ All desktop services bind to =PartOf=sway-session.target= and start/stop with Sw
 
    This points the =sway= and =alacritty= symlinks at =sway_mini_pc= / =alacritty_mini_pc=.
 
-3. Deploy the config files (create symlinks with GNU Stow):
+4. Deploy the config files (create symlinks with GNU Stow):
 
    #+begin_src sh
      ./deploy.sh config
