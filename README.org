@@ -1,149 +1,54 @@
 #+TITLE: Sway Dotfiles
 #+AUTHOR: shyweeds
-#+DESCRIPTION: Wayland desktop config based on Arch Linux + Sway
+#+DESCRIPTION: Arch Linux + Sway dotfiles managed with GNU Stow
 
-* Introduction
+* 简介
 
-This repo holds my Arch Linux desktop config files, built on Sway (a Wayland
-compositor) and managed with =GNU Stow= symlinks. It keeps separate config
-directories for two machines (HP laptop and mini PC), switched via the =sway=
-and =alacritty= symlinks, and uses =systemd-user= to manage the desktop services.
+Arch Linux + Sway 的个人桌面配置，使用 GNU Stow 管理软链接。
 
-* Directory structure
+- 支持两台机器：HP laptop（=hp_laptop=）和 mini PC（=mini_pc=）
+- 通过仓库根目录的 =sway=、=alacritty= 软链接切换机器配置
+- 所有部署操作统一走 =deploy.sh=
 
-| Path                      | Description                                                                 |
-|---------------------------+-----------------------------------------------------------------------------|
-| =sway_hp_laptop/=           | Sway config for the HP laptop (=sway= points here)                            |
-| =sway_mini_pc/=             | Sway config for the mini PC                                                 |
-| =sway=                      | Symlink to the active device (HP laptop by default)                         |
-| =alacritty_hp_laptop/=      | Alacritty config for the HP laptop (=alacritty= points here)                  |
-| =alacritty_mini_pc/=        | Alacritty config for the mini PC                                            |
-| =alacritty=                 | Symlink to the active device (HP laptop by default)                         |
-| =waybar/=                   | Top status bar config and style                                             |
-| =fuzzel/=                   | App launcher config (JetBrains Mono Nerd / 20pt / Bold)                     |
-| =swaync/=                   | Notification center config (volume + MPRIS controls)                        |
-| =systemd/=                  | systemd-user services (waybar/swaync, etc.)                                 |
-| =systemd_user_environment/= | systemd-user environment variables (flatpak / fcitx5)                       |
-| =greetd/=                   | Login manager (greetd + tuigreet)                                           |
-| =mihomo/=                   | Mihomo (Clash Meta) kernel config, deployed to =/etc/mihomo= after decryption |
-| =xray_dockers/=             | Xray server/client Docker deploy configs (not version-controlled)           |
-| =deploy.sh=                 | Single entry: config / software / after_mihomo / switch / encrypt / decrypt |
+* 用法
 
-* Main components
+** 安装软件
 
-** Sway (window manager)
-- Main modifier is =Mod4= (Win); use =hjkl= to move focus
-- Desktop programs: =fuzzel= (launcher), =waybar= (status bar), =swaync= (notification center),
-  =swayosd= (on-screen display), =polkit-gnome= (PolicyKit auth agent),
-  =grim=+=slurp= (screenshot), =swaylock= (lock screen)
-- Lock after 300s idle, turn off the screen after 600s
-- =pre-start.sh= / =50-systemd-user.conf= import =DISPLAY=, =SWAYSOCK=,
-  =WAYLAND_DISPLAY=, etc. into the systemd-user environment and start =sway-session.target=
+#+begin_src sh
+./deploy.sh software
+#+end_src
 
-** systemd-user services
-All desktop services bind to =PartOf=sway-session.target= and start/stop with Sway:
+更新系统、安装/移除软件包、启用服务。mihomo 从 =./pkgs/= 下的
+=mihomo-*.pkg.tar.zst= 安装，可用 =MIHOMO_PKG_DIR= 覆盖目录。
 
-| Service                                     | Program              |
-|---------------------------------------------+----------------------|
-| =waybar.service=                              | status bar           |
-| =swaync.service=                              | notification center  |
-| =swayosd-server.service=                      | on-screen display    |
-| =polkit-gnome-authentication-agent-1.service= | PolicyKit auth agent |
-| =fcitx5.service=                              | Chinese input method |
+** 安装 Rime
 
-** Waybar (status bar)
-- Top bar with the Arch icon (click opens fuzzel), workspaces, clock/idle inhibitor, CPU/memory,
-  power, battery, and system tray
-- Click CPU/memory to open =btop= in alacritty
+#+begin_src sh
+./deploy.sh after_mihomo
+#+end_src
 
-** Input method
-- =fcitx5= + =fcitx5-rime=, started by a systemd-user service
-- Rime 数据（雾凇拼音 + 小鹤双拼）由 =plum= 部署到 =~/.local/share/fcitx5/rime=，
-  默认方案为 =double_pinyin_flypy=（小鹤双拼）；见 =./deploy.sh after_mihomo=
+安装雾凇拼音 + 小鹤双拼。
 
-** Mihomo (proxy kernel)
-- Transparent proxy kernel based on =Clash Meta=, configured as a single =config.yaml=, running in =/etc/mihomo=
-- Installed from a pre-downloaded package (=mihomo-*.pkg.tar.zst= in =./pkgs/=, override with
-  =MIHOMO_PKG_DIR=) via =pacman -U=, which also ships =mihomo.service=; =./deploy.sh config=
-  enables it after deploying the config
-- Sensitive fields (the subscription =url= and the DNS =nameserver-policy= DoH URLs) are encrypted
-  with =sops= + =age=; the plaintext =config.yaml= is produced by =./deploy.sh decrypt= and deployed to =/etc/mihomo=
-- =tun.enable: true= needs root
+** 切换机器
 
-* Deployment
+#+begin_src sh
+./deploy.sh switch mini_pc   # 或 hp_laptop
+#+end_src
 
-1. Install software (Arch Linux):
+** 部署配置
 
-   #+begin_src sh
-     ./deploy.sh software
-   #+end_src
+#+begin_src sh
+./deploy.sh config
+#+end_src
 
-   This command updates the system, installs/removes packages, enables =sshd=, =greetd=, =firewalld=,
-   configures git, generates an SSH key, and sets up firewalld rules. It also installs =sops= and
-   =age= (used to decrypt the mihomo config), and installs =mihomo= from a pre-downloaded package
-   (=mihomo-*.pkg.tar.zst= in =./pkgs/=, or =$MIHOMO_PKG_DIR=) via =pacman -U=.
+用 Stow 链接用户与系统配置，并启用 systemd 用户服务。
+=./deploy.sh= 默认等价于 =./deploy.sh config=。
 
-   If the mihomo package is missing, the script prints a warning and continues without aborting:
+** mihomo 配置
 
-   #+begin_src sh
-     # mihomo (fallback): put the package in ./pkgs/ and rerun the script
-     paru -S mihomo    # or: yay -S mihomo
-   #+end_src
+#+begin_src sh
+./deploy.sh decrypt   # config.enc.yaml -> etc/mihomo/config.yaml
+./deploy.sh encrypt   # etc/mihomo/config.yaml -> config.enc.yaml
+#+end_src
 
-2. Install rime (雾凇拼音 + 小鹤双拼):
-
-   #+begin_src sh
-     ./deploy.sh after_mihomo
-   #+end_src
-
-   This clones =plum= and deploys =iDvel/rime-ice= plus the =double_pinyin_flypy= recipes into
-   =~/.local/share/fcitx5/rime=. It exits non-zero if the clone or recipe installation fails.
-
-   #+begin_src sh
-     # rime (fallback)
-     git clone https://github.com/rime/plum.git ~/.local/share/plum
-     cd ~/.local/share/plum
-     rime_dir=~/.local/share/fcitx5/rime bash rime-install iDvel/rime-ice
-     rime_dir=~/.local/share/fcitx5/rime bash rime-install iDvel/rime-ice:others/recipes/config:schema=double_pinyin_flypy
-   #+end_src
-
-3. Switch the device config (e.g. for the mini PC):
-
-   #+begin_src sh
-     ./deploy.sh switch mini_pc
-   #+end_src
-
-   This points the =sway= and =alacritty= symlinks at =sway_mini_pc= / =alacritty_mini_pc=.
-
-4. Deploy the config files (create symlinks with GNU Stow):
-
-   #+begin_src sh
-     ./deploy.sh config
-   #+end_src
-
-   This command links the user configs (sway, waybar, alacritty, fuzzel, swaync, systemd,
-   systemd_user_environment) to =$HOME=, links =greetd= and =mihomo= to the system root =/=
-   (needs root), and enables the systemd-user services. The mihomo plaintext =config.yaml= is
-   decrypted by =./deploy.sh decrypt= before deployment and linked as =/etc/mihomo/config.yaml=,
-   then =mihomo.service= is enabled. If =mihomo= is not installed, =./deploy.sh config= prints a warning
-   and skips the mihomo config/service instead of aborting.
-
-* Usage
-
-- Startup: the =greetd= login manager starts Sway via =sway-session.sh=; when Sway exits,
-  =sway-session.target= and its services are stopped by systemd.
-- Common keybindings:
-
-| Key              | Action                                                  |
-|------------------+---------------------------------------------------------|
-| =Mod+Return=     | Open terminal                                           |
-| =Mod+d=          | Open app launcher                                       |
-| =Mod+Shift+q=    | Close window                                            |
-| =Mod+Shift+e=    | Exit Sway                                               |
-| =Mod+Shift+c=    | Reload config                                           |
-| =Mod+1~0=        | Switch workspace                                        |
-| =Mod+Shift+1~0=  | Move window to workspace                                |
-| =Mod+Shift+space= | Toggle floating window                                 |
-| =Mod+r=          | Enter resize mode                                       |
-| =Print=          | Screenshot region (grim+slurp, saved to =~/Pictures=)   |
-| =Mod+Shift+n=    | Open notification center                                |
+需要 =sops= + =age=。
