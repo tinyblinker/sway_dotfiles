@@ -2,6 +2,4 @@ config\.enc\.yaml
 \.sops\.yaml
 \.gitignore
 age-key\.txt
-decrypt\.sh
-encrypt\.sh
 \.stow-local-ignore

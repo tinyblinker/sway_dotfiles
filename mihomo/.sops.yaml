@@ -1,7 +1,7 @@
 # SOPS configuration for this folder.
 # Encryption backend: age (recipient = public key below).
 # The matching private key lives in ./age-key.txt and is supplied to sops via
-# the SOPS_AGE_KEY_FILE environment variable (see encrypt.sh / decrypt.sh).
+# the SOPS_AGE_KEY_FILE environment variable (see ../deploy.sh encrypt|decrypt).
 creation_rules:
   # Encrypt only the sensitive leaf values of the config:
   #   - every `url` key (the subscription address + non-secret test URLs)

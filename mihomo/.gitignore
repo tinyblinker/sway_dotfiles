@@ -12,6 +12,6 @@ etc/mihomo/*
 # Safe to commit / make public:
 #   config.enc.yaml          (sops-encrypted, secrets sealed)
 #   .sops.yaml               (age public key only)
-#   encrypt.sh / decrypt.sh
+#   (encryption is handled by ../deploy.sh encrypt|decrypt)
 #   etc/mihomo/              (stow package root; only config.yaml is ignored)
 /example.yaml
