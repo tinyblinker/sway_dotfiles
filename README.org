@@ -6,6 +6,7 @@
 My Arch Linux + Sway desktop config. GNU Stow manages the symlinks.
 There are two machines: HP laptop and mini PC.
 The =sway= and =alacritty= symlinks choose the machine.
+Rime config is a Stow package in =rime/=.
 Every deploy step runs through =deploy.sh=.
 
 * Usage
@@ -26,7 +27,9 @@ Set =MIHOMO_PKG_DIR= to use another folder.
 ./deploy.sh after_mihomo
 #+end_src
 
-Install the Rime input method.
+Install rime-ice with Xiaohe double pinyin (Flypy), update the grammar and
+reverse-tone models, and link the patch in =rime/=. The patch adds
+=in <-> ing= fuzzy pinyin.
 
 ** Switch machine
 
@@ -41,6 +44,7 @@ Install the Rime input method.
 #+end_src
 
 Link user and system configs with Stow, and turn on systemd user services.
+This also links the Rime patch and reloads fcitx5.
 =./deploy.sh= does the same as =./deploy.sh config=.
 
 ** Mihomo config

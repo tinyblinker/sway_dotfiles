@@ -5,6 +5,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MIHOMO_DIR="$ROOT/mihomo"
+RIME_DIR="$HOME/.local/share/fcitx5/rime"
 
 # Directory holding the pre-downloaded mihomo package; override when needed.
 MIHOMO_PKG_DIR="${MIHOMO_PKG_DIR:-$ROOT/pkgs}"
@@ -105,10 +106,17 @@ install_mihomo() {
     "${SUDO[@]}" pacman -U --noconfirm "${matches[0]}"
 }
 
-install_rime() {
-    command -v git >/dev/null 2>&1 || return 1
+rime_deploy() {
+    [ -f "$RIME_DIR/double_pinyin_flypy.schema.yaml" ] || return 0
+    command -v rime_deployer >/dev/null 2>&1 || return 0
+    rime_deployer --build "$RIME_DIR" /usr/share/rime-data "$RIME_DIR/build" \
+        >/dev/null 2>&1 || log warn "rime deploy failed; restart fcitx5 to rebuild"
+}
 
-    local rdir="$HOME/.local/share/fcitx5/rime"
+install_rime() {
+    need git
+    need stow
+
     local plum="$HOME/.local/share/plum"
 
     if [ -d "$plum/.git" ]; then
@@ -118,14 +126,23 @@ install_rime() {
         git clone --depth 1 https://github.com/rime/plum.git "$plum" || return 1
     fi
 
-    mkdir -p "$rdir"
-    rime_dir="$rdir" bash "$plum/rime-install" iDvel/rime-ice || return 1
-    rime_dir="$rdir" bash "$plum/rime-install" \
+    mkdir -p "$RIME_DIR"
+    # Drop any old stow symlink so plum cannot write into the repo.
+    rm -f "$RIME_DIR/double_pinyin_flypy.custom.yaml"
+
+    rime_dir="$RIME_DIR" bash "$plum/rime-install" iDvel/rime-ice || return 1
+    rime_dir="$RIME_DIR" bash "$plum/rime-install" \
         "iDvel/rime-ice:others/recipes/config:schema=double_pinyin_flypy" || return 1
-    rime_dir="$rdir" bash "$plum/rime-install" \
+    rime_dir="$RIME_DIR" bash "$plum/rime-install" \
         "iDvel/rime-ice:others/recipes/grammar:schema=double_pinyin_flypy" || true
-    rime_dir="$rdir" bash "$plum/rime-install" \
+    rime_dir="$RIME_DIR" bash "$plum/rime-install" \
         "iDvel/rime-ice:others/recipes/reverse_tone:schema=double_pinyin_flypy" || true
+
+    # Replace the recipe-generated file with the tracked stow package.
+    rm -f "$RIME_DIR/double_pinyin_flypy.custom.yaml"
+    stow --dir="$ROOT" --target="$HOME" --restow rime || return 1
+
+    rime_deploy
 }
 
 cmd_software() {
@@ -249,8 +266,15 @@ cmd_config() {
     fi
 
     log info "stow user configs"
+    [ -L "$RIME_DIR/double_pinyin_flypy.custom.yaml" ] \
+        || rm -f "$RIME_DIR/double_pinyin_flypy.custom.yaml"
     stow --dir="$ROOT" --target="$HOME" --restow \
-        sway waybar systemd alacritty systemd_user_environment fuzzel swaync
+        sway waybar systemd alacritty systemd_user_environment fuzzel swaync rime
+
+    rime_deploy
+    if command -v fcitx5-remote >/dev/null 2>&1; then
+        fcitx5-remote -r || true
+    fi
 
     log info "stow system configs"
     "${SUDO[@]}" rm -rf /etc/greetd
@@ -289,6 +313,9 @@ case "${1:-config}" in
         log info "install rime (ice-rime + flypy)"
         install_rime || die "rime install failed; see README.org for the manual fallback"
         log ok "rime installed to $HOME/.local/share/fcitx5/rime"
+        if command -v fcitx5-remote >/dev/null 2>&1; then
+            fcitx5-remote -r || true
+        fi
         ;;
     switch)
         [ $# -ge 2 ] || die "usage: ./deploy.sh switch <host>"
