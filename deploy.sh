@@ -6,6 +6,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MIHOMO_DIR="$ROOT/mihomo"
 
+# Directory holding the pre-downloaded mihomo package; override when needed.
+MIHOMO_PKG_DIR="${MIHOMO_PKG_DIR:-$ROOT/pkgs}"
+
 # Machine-specific knobs; override from the environment when needed.
 WIRED_IF="${WIRED_IF:-enp1s0}"
 WIRELESS_IF="${WIRELESS_IF:-wlp2s0}"
@@ -95,36 +98,10 @@ pacman_remove() {
 }
 
 install_mihomo() {
-    command -v curl >/dev/null 2>&1 || return 1
-
-    local tag asset url tmp rc
-    if ! tag="$(curl -fsS -o /dev/null -w '%{redirect_url}' \
-        'https://github.com/MetaCubeX/mihomo/releases/latest' | sed 's#.*/##')"; then
-        return 1
-    fi
-    [ "${tag#v}" != "$tag" ] || return 1
-
-    case "$(uname -m)" in
-        x86_64|amd64)  asset="mihomo-linux-amd64-v3-${tag}.pkg.tar.zst" ;;
-        aarch64|arm64) asset="mihomo-linux-arm64-${tag}.pkg.tar.zst" ;;
-        *) return 1 ;;
-    esac
-
-    url="https://github.com/MetaCubeX/mihomo/releases/download/${tag}/${asset}"
-    tmp="$(mktemp -d)"
-    log info "download $asset"
-    if ! curl -fL --retry 3 -o "$tmp/$asset" "$url"; then
-        rm -rf "$tmp"
-        return 1
-    fi
-
-    if "${SUDO[@]}" pacman -U --noconfirm "$tmp/$asset"; then
-        rc=0
-    else
-        rc=$?
-    fi
-    rm -rf "$tmp"
-    return "$rc"
+    local matches=("$MIHOMO_PKG_DIR"/mihomo-*.pkg.tar.zst)
+    [ "${#matches[@]}" -eq 1 ] && [ -f "${matches[0]}" ] || return 1
+    log info "install $(basename "${matches[0]}")"
+    "${SUDO[@]}" pacman -U --noconfirm "${matches[0]}"
 }
 
 install_rime() {
@@ -169,7 +146,7 @@ cmd_software() {
     log info "update system"
     "${SUDO[@]}" pacman -Syu --noconfirm
 
-    pacman_install "basic tools"    "${base_tools[@]}"
+    pacman_instnall "basic tools"    "${base_tools[@]}"
     pacman_install "shell/terminal" "${shell_terminal[@]}"
     pacman_install "sway desktop"   "${sway_desktop[@]}"
     pacman_install "xdg portals"    "${portal[@]}"
@@ -251,7 +228,7 @@ cmd_software() {
     if install_mihomo; then
         log ok "mihomo installed"
     else
-        log warn "mihomo install failed; run 'paru -S mihomo' then './deploy.sh config'"
+        log warn "no mihomo package in $MIHOMO_PKG_DIR (expected exactly one mihomo-*.pkg.tar.zst)"
     fi
 
     log info "install rime (ice-rime + flypy)"

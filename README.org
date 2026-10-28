@@ -63,8 +63,9 @@ All desktop services bind to =PartOf=sway-session.target= and start/stop with Sw
 
 ** Mihomo (proxy kernel)
 - Transparent proxy kernel based on =Clash Meta=, configured as a single =config.yaml=, running in =/etc/mihomo=
-- Installed from the official GitHub release (=mihomo-linux-amd64-v3-*.pkg.tar.zst= via =pacman -U=),
-  which also ships =mihomo.service=; =./deploy.sh config= enables it after deploying the config
+- Installed from a pre-downloaded package (=mihomo-*.pkg.tar.zst= in =./pkgs/=, override with
+  =MIHOMO_PKG_DIR=) via =pacman -U=, which also ships =mihomo.service=; =./deploy.sh config=
+  enables it after deploying the config
 - Sensitive fields (the subscription =url= and the DNS =nameserver-policy= DoH URLs) are encrypted
   with =sops= + =age=; the plaintext =config.yaml= is produced by =./deploy.sh decrypt= and deployed to =/etc/mihomo=
 - =tun.enable: true= needs root
@@ -79,15 +80,15 @@ All desktop services bind to =PartOf=sway-session.target= and start/stop with Sw
 
    This command updates the system, installs/removes packages, enables =sshd=, =greetd=, =firewalld=,
    configures git, generates an SSH key, and sets up firewalld rules. It also installs =sops= and
-   =age= (used to decrypt the mihomo config), installs =mihomo= from its official GitHub release
-   (=mihomo-linux-amd64-v3-*.pkg.tar.zst= via =pacman -U=), and deploys =fcitx5-rime= + 雾凇拼音 +
-   小鹤双拼 through =plum=.
+   =age= (used to decrypt the mihomo config), installs =mihomo= from a pre-downloaded package
+   (=mihomo-*.pkg.tar.zst= in =./pkgs/=, or =$MIHOMO_PKG_DIR=) via =pacman -U=, and deploys
+   =fcitx5-rime= + 雾凇拼音 + 小鹤双拼 through =plum=.
 
-   If either download fails (no network, GitHub unreachable, etc.), the script prints a warning
+   If the mihomo package is missing or the rime clone fails, the script prints a warning
    with manual instructions and continues without aborting:
 
    #+begin_src sh
-     # mihomo (fallback)
+     # mihomo (fallback): put the package in ./pkgs/ and rerun the script
      paru -S mihomo    # or: yay -S mihomo
 
      # rime (fallback)
