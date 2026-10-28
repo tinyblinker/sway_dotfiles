@@ -1,54 +1,53 @@
 #+TITLE: Sway Dotfiles
 #+AUTHOR: shyweeds
-#+DESCRIPTION: Arch Linux + Sway dotfiles managed with GNU Stow
 
-* 简介
+* About
 
-Arch Linux + Sway 的个人桌面配置，使用 GNU Stow 管理软链接。
+My Arch Linux + Sway desktop config. GNU Stow manages the symlinks.
+There are two machines: HP laptop and mini PC.
+The =sway= and =alacritty= symlinks choose the machine.
+Every deploy step runs through =deploy.sh=.
 
-- 支持两台机器：HP laptop（=hp_laptop=）和 mini PC（=mini_pc=）
-- 通过仓库根目录的 =sway=、=alacritty= 软链接切换机器配置
-- 所有部署操作统一走 =deploy.sh=
+* Usage
 
-* 用法
-
-** 安装软件
+** Install software
 
 #+begin_src sh
 ./deploy.sh software
 #+end_src
 
-更新系统、安装/移除软件包、启用服务。mihomo 从 =./pkgs/= 下的
-=mihomo-*.pkg.tar.zst= 安装，可用 =MIHOMO_PKG_DIR= 覆盖目录。
+Update the system, install or remove packages, and turn on services.
+Mihomo comes from =./pkgs/mihomo-*.pkg.tar.zst=.
+Set =MIHOMO_PKG_DIR= to use another folder.
 
-** 安装 Rime
+** Install Rime
 
 #+begin_src sh
 ./deploy.sh after_mihomo
 #+end_src
 
-安装雾凇拼音 + 小鹤双拼。
+Install the Rime input method.
 
-** 切换机器
+** Switch machine
 
 #+begin_src sh
-./deploy.sh switch mini_pc   # 或 hp_laptop
+./deploy.sh switch mini_pc   # or hp_laptop
 #+end_src
 
-** 部署配置
+** Deploy configs
 
 #+begin_src sh
 ./deploy.sh config
 #+end_src
 
-用 Stow 链接用户与系统配置，并启用 systemd 用户服务。
-=./deploy.sh= 默认等价于 =./deploy.sh config=。
+Link user and system configs with Stow, and turn on systemd user services.
+=./deploy.sh= does the same as =./deploy.sh config=.
 
-** mihomo 配置
+** Mihomo config
 
 #+begin_src sh
 ./deploy.sh decrypt   # config.enc.yaml -> etc/mihomo/config.yaml
 ./deploy.sh encrypt   # etc/mihomo/config.yaml -> config.enc.yaml
 #+end_src
 
-需要 =sops= + =age=。
+Needs =sops= and =age=.
